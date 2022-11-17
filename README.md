@@ -11,13 +11,32 @@
 * Implementacja scrollowalnej listy za pomocą pagingu -> mały priorytet
 
 # Planowane technologie
-* Android Jetpack
-* XML / Compose UI
-* JUnit
-* Navigation Component
-* Retrofit
-* Room
-* Kotlin Coroutines
+* Android Jetpack   -> Recycler view w przypadku 
+* XML / Compose UI -> UI
+* JUnit -> Testowanie
+* Navigation Component  -> Nawigacja między ekranami, Safe args plugin w celu zapewniania type safety przekazywanych argumentów)
+* Retrofit  -> Fetchowanie danych z PokeApi (w połączeniu z Kotlin Coroutines, żeby zapewnić prostą asynchroniczność) 
+* Room -> lokalna baza danych do cache-owania fetchowanych danych
+* Kotlin Coroutines -> Asynchroniczność
 * Kotlin
-* Hilt
+* Hilt -> DI w celu uproszczenia implementacji Czystej Architektury
 * Kotlinx Serialization
+
+# Architektura potoku zapytań implementująca Unidiractional Data Flow
+* Wysłanie zapytania do PokeApi
+* Odebranie wyniku zapytania
+* Zapis wyniku do lokalnej bazy danych
+* Otrzymanie nowych danych z bazy danych
+* Wyświetlenie danych w aplikacji
+
+# Wstępne ekrany:
+* Scrollowalna lista streszczonych informacji pokemonów
+* Możliwość przejścia do ekranu ze szczegółami danego pokemona
+
+# Encje:
+* PokemonSnapshot: id, iconUrl, name
+* PokemonDetails: id, iconUrl, name, abilities, types, ...
+
+# Testowanie
+* Wykorzystywanie fałszywego repozytorium zapytań o pokemony w celu testowania poprawności działania ViewModel-u
+* Wykorzystywanie fałszywych źródeł danych i lokalnej bazy danych w celu testowania poprawności działania repozytorium
