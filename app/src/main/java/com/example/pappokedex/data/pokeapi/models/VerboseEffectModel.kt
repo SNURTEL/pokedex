@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class VerboseEffectModel(
-    val effectDescription: String,
-    val effectShortDesc: String
+    val effect: String,
+    val short_effect: String,
+    val language: NamedApiResourceModel
 )

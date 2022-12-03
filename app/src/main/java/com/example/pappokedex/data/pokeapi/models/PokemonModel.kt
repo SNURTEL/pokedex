@@ -7,8 +7,8 @@ data class PokemonModel (
     val name: String,
     val height: Int,
     val weight: Int,
-    val abilities: List<AbilityModel>,
+    val abilities: List<PokemonAbilityModel>,
     val types: List<PokemonTypeModel>,
     val sprites: SpriteUrlsModel,
-    val species: NamedApiResourceModel
+    val species: NamedApiResourceModel,
         )

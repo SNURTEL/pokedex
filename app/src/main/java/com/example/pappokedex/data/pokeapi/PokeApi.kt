@@ -1,5 +1,6 @@
 package com.example.pappokedex.data.pokeapi
 
+import com.example.pappokedex.data.pokeapi.models.AbilityModel
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
@@ -31,6 +32,9 @@ interface PokeApi {
 
     @GET("pokemon-species/{speciesName}")
     suspend fun getSpecies(@Path("speciesName") name: String): Response<SpeciesModel>
+
+    @GET("ability/{abilityName}")
+    suspend fun getAbility(@Path("abilityName") name: String): Response<AbilityModel>
 }
 
 object PokeApiHelper {
