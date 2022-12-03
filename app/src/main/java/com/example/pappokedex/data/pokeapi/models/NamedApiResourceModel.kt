@@ -1,9 +1,9 @@
-package com.example.pappokedex.domain.pokeapi.deserialized
+package com.example.pappokedex.data.pokeapi.models
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class NamedApiResourceData (
+data class NamedApiResourceModel (
     val name: String,
     val url: String
         )

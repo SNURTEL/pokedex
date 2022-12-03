@@ -1,4 +1,4 @@
-package com.example.pappokedex.domain.pokeapi
+package com.example.pappokedex.data.pokeapi
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -10,11 +10,12 @@ import retrofit2.Retrofit
 import retrofit2.http.GET
 import retrofit2.http.Path
 
-import com.example.pappokedex.domain.pokeapi.deserialized.PokemonData
+import com.example.pappokedex.data.pokeapi.models.PokemonModel
+import com.example.pappokedex.data.pokeapi.models.SpeciesModel
 
 interface PokeApi {
     @GET("pokemon/{pokeName}")
-    suspend fun getPokemon(@Path("pokeName") name: String): Response<PokemonData>
+    suspend fun getPokemon(@Path("pokeName") name: String): Response<PokemonModel>
 
     @GET("pokemon/?limit=-1")
     suspend fun getAllPokeResources(): Response<PokeResourceList>
@@ -27,6 +28,9 @@ interface PokeApi {
 
     @Serializable
     data class PokeResource(val name: String, val url: String)
+
+    @GET("pokemon-species/{speciesName}")
+    suspend fun getSpecies(@Path("speciesName") name: String): Response<SpeciesModel>
 }
 
 object PokeApiHelper {
