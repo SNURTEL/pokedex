@@ -1,7 +1,6 @@
 package com.example.pappokedex
 
 import android.util.Log
-import com.example.pappokedex.data.pokeapi.PokeApi
 import com.example.pappokedex.data.pokeapi.PokeApiHelper
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -12,7 +11,7 @@ import org.junit.Test
 // mostly for debugging purposes
 @OptIn(ExperimentalSerializationApi::class)
 class DeserializationTest {
-    private val api = PokeApiHelper.getInstance().create(PokeApi::class.java)
+    private val api = PokeApiHelper().getApi()
     private val loggerTag = "DeserializationTest"
 
     @Test

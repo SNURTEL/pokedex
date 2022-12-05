@@ -1,7 +1,6 @@
 package com.example.pappokedex
 
 import android.util.Log
-import com.example.pappokedex.data.pokeapi.PokeApi
 import com.example.pappokedex.data.pokeapi.PokeApiHelper
 import com.example.pappokedex.data.pokeapi.mapModelToAbility
 import com.example.pappokedex.data.pokeapi.mapModelsToPokemon
@@ -16,7 +15,7 @@ import org.junit.Assert.*
 // TODO mock the network API
 @OptIn(ExperimentalSerializationApi::class)
 class ModelMappersTest {
-    private val api = PokeApiHelper.getInstance().create(PokeApi::class.java)
+    private val api = PokeApiHelper().getApi()
     private val loggerTag = "ModelMapperTest"
 
     @Test

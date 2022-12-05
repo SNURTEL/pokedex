@@ -11,29 +11,35 @@ fun mapModelsToPokemon(
     speciesModel: SpeciesModel,
     abilityModels: List<AbilityModel>
 ) =
-    Pokemon(
-        name = pokemonModel.name,
-        iconUrl = pokemonModel.sprites.front_default,
-        height = pokemonModel.height,
-        weight = pokemonModel.weight,
-        abilities = abilityModels.map {
-            mapModelToAbility(it)
-        },
-        types = pokemonModel.types.map { it.type.name },
-        evolutionChainId = speciesModel.evolution_chain.url
-            .split('/')
-            .dropLast(1)
-            .last()
-            .toInt(),  // save an API call by extracting ID from URL
-        isBaby = speciesModel.is_baby,
-        isLegendary = speciesModel.is_legendary,
-        isMythical = speciesModel.is_mythical
-    )
+    with(pokemonModel) {
+        with(speciesModel) {
+            Pokemon(
+                name = name,
+                iconUrl = sprites.front_default,
+                height = height,
+                weight = weight,
+                abilities = abilityModels.map {
+                    mapModelToAbility(it)
+                },
+                types = types.map { it.type.name },
+                evolutionChainId = evolution_chain.url
+                    .split('/')
+                    .dropLast(1)
+                    .last()
+                    .toInt(),  // save an API call by extracting ID from URL
+                isBaby = is_baby,
+                isLegendary = is_legendary,
+                isMythical = is_mythical
+            )
+        }
+
+    }
+
 
 fun mapModelToAbility(abilityModel: AbilityModel) =
     Ability(
         name = abilityModel.name,
         effect_description = abilityModel.effect_entries
-                            .find { vem -> vem.language.name == "en" }
-                            ?.effect ?: ""
+            .find { vem -> vem.language.name == "en" }
+            ?.effect ?: ""
     )
