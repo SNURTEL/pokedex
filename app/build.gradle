@@ -5,6 +5,8 @@ plugins {
     id 'kotlin-kapt'
     id 'com.google.dagger.hilt.android'
     id 'androidx.navigation.safeargs.kotlin'
+    id 'org.jetbrains.kotlin.plugin.serialization'
+
 }
 
 android {
@@ -68,6 +70,7 @@ dependencies {
     def coroutines_version = "1.6.4"
     def hilt_version = "2.44.2"
     def kotlinx_serial_version = "1.4.1"
+    def retrofit_serial_converter_version = "0.8.0"
     def hilt_integrations_version = "1.0.0"
     def compose_ui_version = "1.3.1"
 
@@ -122,6 +125,7 @@ dependencies {
     // Retrofit and Json converter
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinx_serial_version"
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:$retrofit_serial_converter_version")
 
     //Hilt
     implementation "com.google.dagger:hilt-android:$hilt_version"
