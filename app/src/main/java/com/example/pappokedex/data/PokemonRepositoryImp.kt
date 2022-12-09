@@ -16,8 +16,8 @@ class PokemonRepositoryImp @Inject constructor(
     private val pokemonRemoteApi: PokeApi,
     private val pokemonDatabaseDao: PokemonDao
 ) : PokemonRepository {
-//    private val pokemonCache = RepositoryCache<String, Pokemon>();
-//    private val pokemonSnapshotCache = RepositoryCache<String, PokemonSnapshot>();
+    private val pokemonCache = RepositoryCache<String, Pokemon>();
+    private val pokemonSnapshotCache = RepositoryCache<String, PokemonSnapshot>();
 
     override suspend fun getPokemonSnapshots(): List<PokemonSnapshot> =
         withContext(Dispatchers.IO) {
@@ -26,9 +26,14 @@ class PokemonRepositoryImp @Inject constructor(
             val pokemonResources =
                 response.body()?.results?.slice(0..29) ?: return@withContext listOf()
 
+            if (pokemonResources.count() == pokemonSnapshotCache.entryCount) {
+                return@withContext pokemonSnapshotCache.values
+            }
+
             val pokemonSnapshotsFromDb = pokemonDatabaseDao.getPokemonSnapshots().map {
                 mapPokemonSnapshotEntityToDomain(it)
             }
+            // works properly only after disabling the 30 call limit!
             if (pokemonResources.count() != pokemonSnapshotsFromDb.count()) {
                 val missingPokemonNames = pokemonResources
                     .map { it.name }
@@ -47,18 +52,16 @@ class PokemonRepositoryImp @Inject constructor(
             pokemonDatabaseDao.getPokemonSnapshots().map(::mapPokemonSnapshotEntityToDomain)
         }
 
-    private suspend fun <T> getResponseBodyOrNull(query: suspend () -> Response<T>) = query().body()
 
     override suspend fun getPokemon(name: String): Pokemon? =
-//        getPokemonFromCache(name) ?: withContext(Dispatchers.IO) {
-        withContext(Dispatchers.IO) {
+        getPokemonFromCache(name) ?: withContext(Dispatchers.IO) {
             getPokemonFromDB(name) ?: getPokemonFromRemoteApi(name)?.also {
                 pokemonDatabaseDao.insertPokemonData(listOf(it))
             }
         }
 
-//    private suspend fun getPokemonFromCache(name: String): Pokemon? =
-//        pokemonCache.getOrNull(name)
+    private fun getPokemonFromCache(name: String): Pokemon? =
+        pokemonCache.getOrNull(name)
 
     private suspend fun getPokemonFromDB(name: String): Pokemon? =
         coroutineScope {
@@ -85,8 +88,6 @@ class PokemonRepositoryImp @Inject constructor(
                         }
                     }
                     .awaitAll()
-                    // would provide an incomplete pokemon if any ability api call should fail!
-                    // fail if any null
                     .also {
                         if (it.contains(null)) {
                             return@coroutineScope null
@@ -100,3 +101,5 @@ class PokemonRepositoryImp @Inject constructor(
             mapModelsToPokemon(model, speciesModel, abilityModels)
         }
 }
+
+private suspend fun <T> getResponseBodyOrNull(query: suspend () -> Response<T>) = query().body()

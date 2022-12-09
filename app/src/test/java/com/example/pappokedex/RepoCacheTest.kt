@@ -6,8 +6,8 @@ import org.junit.Test
 import org.junit.Assert.*
 
 class TestCache<K, T> : RepositoryCache<K, T>() {
-    val contents: MutableMap<K, T>
-        get() = _contents
+    val cacheContents: MutableMap<K, T>
+        get() = contents
 }
 
 class RepoCacheTest {
@@ -17,7 +17,7 @@ class RepoCacheTest {
         runBlocking {
             cache.getOrDefault(123) { "balbinka" }
         }
-        assert(cache.contents[123] == "balbinka")
+        assert(cache.cacheContents[123] == "balbinka")
     }
 
     @Test
