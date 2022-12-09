@@ -15,7 +15,7 @@ fun mapModelsToPokemon(
         with(speciesModel) {
             Pokemon(
                 name = name,
-                iconUrl = sprites.front_default,
+                iconUrl = sprites.front_default ?: "",
                 height = height,
                 weight = weight,
                 abilities = abilityModels.map {
