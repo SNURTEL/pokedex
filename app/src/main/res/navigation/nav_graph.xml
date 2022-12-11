@@ -2,10 +2,14 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/dummyFragment">
+    app:startDestination="@id/scrollList">
 
     <fragment
         android:id="@+id/dummyFragment"
         android:name="com.example.pappokedex.ui.DummyFragment"
         android:label="DummyFragment"/>
+    <fragment
+        android:id="@+id/scrollList"
+        android:name="com.example.pappokedex.ui.ScrollList"
+        android:label="ScrollList" />
 </navigation>
