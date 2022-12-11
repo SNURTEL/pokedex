@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.pappokedex.ui.theme.PapPokedexTheme
@@ -20,10 +19,6 @@ import android.content.res.Configuration
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.clickable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.*
@@ -32,14 +27,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.material.Text
+import androidx.compose.runtime.*
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.viewModelScope
 import coil.compose.AsyncImage
 import com.example.pappokedex.domain.Pokemon
 import com.example.pappokedex.domain.PokemonSnapshot
+import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
-class ScrollList: Fragment() {
+class ScrollList : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -48,7 +49,7 @@ class ScrollList: Fragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 PapPokedexTheme() {
-                    PokemonList(SampleData.ListOfPokemons)
+                    PokemonList()
                 }
             }
         }
@@ -80,18 +81,19 @@ fun PokemonCard(pokemon: PokemonSnapshot) {
 
         Row(modifier = Modifier.padding(all = 8.dp)) {
 
-            AsyncImage(model = pokemon.iconUrl,
-                contentDescription ="Pokemon Icon",
+            AsyncImage(
+                model = pokemon.iconUrl,
+                contentDescription = "Pokemon Icon",
                 modifier = Modifier
                     // Set image size to 40 dp
                     .size(40.dp)
                     // Clip image to be shaped as a circle
                     .clip(CircleShape)
-                    .border(1.5.dp, MaterialTheme.colors.secondary, CircleShape) )
+                    .border(1.5.dp, MaterialTheme.colors.secondary, CircleShape)
+            )
 
             // Add a horizontal space between the image and the column
             Spacer(modifier = Modifier.width(5.dp))
-
 
 
             // We toggle the isExpanded variable when we click on this Column
@@ -128,17 +130,12 @@ fun PokemonCard(pokemon: PokemonSnapshot) {
 
 
 @Composable
-fun PokemonList(pokemon: List<PokemonSnapshot>) {
+fun PokemonList(
+    viewModel: MyViewModel = viewModel()
+) {
     LazyColumn {
-        pokemon.map { item { PokemonCard(it) } }
-    }
-}
-
-@Preview
-@Composable
-fun PreviewPokemonList() {
-    PapPokedexTheme() {
-        PokemonList(SampleData.ListOfPokemons)
+        val pokemonList = viewModel.getList().value
+        pokemonList.map { item { PokemonCard(it) } }
     }
 }
 
