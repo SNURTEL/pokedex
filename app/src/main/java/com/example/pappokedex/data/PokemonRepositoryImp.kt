@@ -16,8 +16,6 @@ class PokemonRepositoryImp @Inject constructor(
     private val pokemonRemoteApi: PokeApi,
     private val pokemonDatabaseDao: PokemonDao
 ) : PokemonRepository {
-//    private val pokemonCache = RepositoryCache<String, Pokemon>();
-//    private val pokemonSnapshotCache = RepositoryCache<String, PokemonSnapshot>();
 
     override suspend fun getPokemonSnapshots(): List<PokemonSnapshot> =
         withContext(Dispatchers.IO) {
@@ -56,9 +54,6 @@ class PokemonRepositoryImp @Inject constructor(
                 pokemonDatabaseDao.insertPokemonData(listOf(it))
             }
         }
-//
-//    private fun getPokemonFromCache(name: String): Pokemon? =
-//        pokemonCache.getOrNull(name)
 
     private suspend fun getPokemonFromDB(name: String): Pokemon? =
         coroutineScope {
