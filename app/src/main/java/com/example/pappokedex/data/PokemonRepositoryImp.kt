@@ -16,8 +16,8 @@ class PokemonRepositoryImp @Inject constructor(
     private val pokemonRemoteApi: PokeApi,
     private val pokemonDatabaseDao: PokemonDao
 ) : PokemonRepository {
-    private val pokemonCache = RepositoryCache<String, Pokemon>();
-    private val pokemonSnapshotCache = RepositoryCache<String, PokemonSnapshot>();
+//    private val pokemonCache = RepositoryCache<String, Pokemon>();
+//    private val pokemonSnapshotCache = RepositoryCache<String, PokemonSnapshot>();
 
     override suspend fun getPokemonSnapshots(): List<PokemonSnapshot> =
         withContext(Dispatchers.IO) {
@@ -25,10 +25,6 @@ class PokemonRepositoryImp @Inject constructor(
 
             val pokemonResources =
                 response.body()?.results?.slice(0..29) ?: return@withContext listOf()
-
-            if (pokemonResources.count() == pokemonSnapshotCache.entryCount) {
-                return@withContext pokemonSnapshotCache.values
-            }
 
             val pokemonSnapshotsFromDb = pokemonDatabaseDao.getPokemonSnapshots().map {
                 mapPokemonSnapshotEntityToDomain(it)
@@ -42,11 +38,12 @@ class PokemonRepositoryImp @Inject constructor(
                 pokemonDatabaseDao.insertPokemonData(missingPokemonNames.map { pokemonName ->
                     async { getPokemonFromRemoteApi(pokemonName) }
                 }.awaitAll()
-                .also {
-                    if (it.contains(null)) {
-                        return@withContext listOf()
-                    }
-                }.filterNotNull())
+                    .also {
+                        if (it.contains(null)) {
+                            return@withContext listOf()
+                        }
+                    }.filterNotNull()
+                )
             }
 
             pokemonDatabaseDao.getPokemonSnapshots().map(::mapPokemonSnapshotEntityToDomain)
@@ -54,14 +51,14 @@ class PokemonRepositoryImp @Inject constructor(
 
 
     override suspend fun getPokemon(name: String): Pokemon? =
-        getPokemonFromCache(name) ?: withContext(Dispatchers.IO) {
+        withContext(Dispatchers.IO) {
             getPokemonFromDB(name) ?: getPokemonFromRemoteApi(name)?.also {
                 pokemonDatabaseDao.insertPokemonData(listOf(it))
             }
         }
-
-    private fun getPokemonFromCache(name: String): Pokemon? =
-        pokemonCache.getOrNull(name)
+//
+//    private fun getPokemonFromCache(name: String): Pokemon? =
+//        pokemonCache.getOrNull(name)
 
     private suspend fun getPokemonFromDB(name: String): Pokemon? =
         coroutineScope {
