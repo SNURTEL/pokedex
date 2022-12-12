@@ -1,45 +1,33 @@
 package com.example.pappokedex.ui
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.pappokedex.ui.theme.PapPokedexTheme
-import androidx.compose.foundation.Image
-import androidx.compose.ui.res.painterResource
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.border
-import android.content.res.Configuration
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.clickable
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.layout.*
-import coil.compose.rememberAsyncImagePainter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.viewModelScope
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.example.pappokedex.domain.Pokemon
 import com.example.pappokedex.domain.PokemonSnapshot
-import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.example.pappokedex.ui.theme.PapPokedexTheme
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 class ScrollList : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -131,11 +119,18 @@ fun PokemonCard(pokemon: PokemonSnapshot) {
 
 @Composable
 fun PokemonList(
-    viewModel: MyViewModel = viewModel()
+    viewModel: MyViewModel = hiltViewModel()
 ) {
-    LazyColumn {
-        val pokemonList = viewModel.getList().value
-        pokemonList.map { item { PokemonCard(it) } }
+    viewModel.loadSnapshots()
+    PokemonSnapshots(viewModel.getList().value)
+}
+
+@Composable
+fun PokemonSnapshots(snapshots: List<PokemonSnapshot>) {
+    LazyColumn() {
+        items(snapshots) {
+            PokemonCard(it)
+        }
     }
 }
 
