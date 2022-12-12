@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.fragment.findNavController
 import coil.compose.AsyncImage
 import com.example.pappokedex.domain.PokemonSnapshot
 import com.example.pappokedex.ui.theme.PapPokedexTheme
@@ -37,15 +38,22 @@ class ScrollList : Fragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 PapPokedexTheme() {
-                    PokemonList()
+                    PokemonList(::navigateToDetails)
                 }
             }
         }
     }
+
+    private fun navigateToDetails(pokemonName: String) {
+        val action =
+            ScrollListDirections
+                .actionScrollListToDisplayPokemonInfo(pokemonName)
+        findNavController().navigate(action)
+    }
 }
 
 @Composable
-fun PokemonCard(pokemon: PokemonSnapshot) {
+fun PokemonCard(pokemon: PokemonSnapshot, navigateToPokemon: (String) -> Unit) {
 
     // Add padding
     var isExpanded by remember { mutableStateOf(false) }
@@ -63,6 +71,7 @@ fun PokemonCard(pokemon: PokemonSnapshot) {
         modifier = Modifier
             .animateContentSize()
             .padding(1.dp)
+            .clickable { navigateToPokemon(pokemon.name) }
     ) {
 
         Spacer(modifier = Modifier.fillMaxWidth())
@@ -119,17 +128,18 @@ fun PokemonCard(pokemon: PokemonSnapshot) {
 
 @Composable
 fun PokemonList(
+    navigateToPokemon: (String) -> Unit,
     viewModel: MyViewModel = hiltViewModel()
 ) {
     viewModel.loadSnapshots()
-    PokemonSnapshots(viewModel.getList().value)
+    PokemonSnapshots(viewModel.pokemonSnapshots.value, navigateToPokemon)
 }
 
 @Composable
-fun PokemonSnapshots(snapshots: List<PokemonSnapshot>) {
+fun PokemonSnapshots(snapshots: List<PokemonSnapshot>, navigateToPokemon: (String) -> Unit) {
     LazyColumn() {
         items(snapshots) {
-            PokemonCard(it)
+            PokemonCard(it, navigateToPokemon)
         }
     }
 }

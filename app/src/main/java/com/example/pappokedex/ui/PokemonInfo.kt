@@ -7,15 +7,12 @@ import android.view.ViewGroup
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -23,16 +20,18 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.fragment.navArgs
 import coil.compose.AsyncImage
-import com.example.pappokedex.ui.theme.PapPokedexTheme
-import com.example.pappokedex.domain.Pokemon
 import com.example.pappokedex.domain.Ability
-import kotlinx.coroutines.launch
+import com.example.pappokedex.domain.Pokemon
+import com.example.pappokedex.ui.theme.PapPokedexTheme
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 class DisplayPokemonInfo : Fragment() {
+    val args: DisplayPokemonInfoArgs by navArgs()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -41,7 +40,7 @@ class DisplayPokemonInfo : Fragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 PapPokedexTheme {
-                    PokemonInfo()
+                    PokemonInfo(args.pokemonName)
                 }
             }
         }
@@ -69,6 +68,7 @@ fun dataInfo(): Pokemon {
 
 @Composable
 fun DisplayInfo(pokemonInfo: Pokemon) {
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colors.background
@@ -119,9 +119,18 @@ fun DisplayInfo(pokemonInfo: Pokemon) {
 
 @Composable
 fun PokemonInfo(
-    viewModel: MyViewModel = viewModel()
+    pokemonName: String,
+    viewModel: MyViewModel = hiltViewModel(),
 ) {
+    viewModel.loadPokemon(pokemonName)
+    viewModel.pokemon.value?.let { pokemon ->
+        DisplayInfo(pokemon)
+    }
 
-    val pokemon = viewModel.getPokemon("Bulbazaur").value
-    DisplayInfo(pokemon)
+    DisplayedPokemonInfo(viewModel.pokemon.value)
+}
+
+@Composable
+fun DisplayedPokemonInfo(pokemon: Pokemon?) {
+
 }
