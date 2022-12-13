@@ -27,6 +27,7 @@ import coil.compose.AsyncImage
 import com.example.pappokedex.domain.PokemonSnapshot
 import com.example.pappokedex.ui.theme.PapPokedexTheme
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.*
 
 @AndroidEntryPoint
 class ScrollList : Fragment() {
@@ -96,7 +97,7 @@ fun PokemonCard(pokemon: PokemonSnapshot, navigateToPokemon: (String) -> Unit) {
             // We toggle the isExpanded variable when we click on this Column
             Column(modifier = Modifier.clickable { isExpanded = !isExpanded }) {
                 Text(
-                    text = pokemon.name,
+                    text = pokemon.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
                     color = MaterialTheme.colors.secondaryVariant,
                     style = MaterialTheme.typography.subtitle2
 

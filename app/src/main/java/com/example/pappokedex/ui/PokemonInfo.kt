@@ -23,10 +23,10 @@ import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.fragment.navArgs
 import coil.compose.AsyncImage
-import com.example.pappokedex.domain.Ability
 import com.example.pappokedex.domain.Pokemon
 import com.example.pappokedex.ui.theme.PapPokedexTheme
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.*
 
 @AndroidEntryPoint
 class DisplayPokemonInfo : Fragment() {
@@ -47,25 +47,6 @@ class DisplayPokemonInfo : Fragment() {
     }
 }
 
-fun dataInfo(): Pokemon {
-    val run = Ability("Run Away", "Ensures success fleeing from wild battles.")
-    val adapt = Ability("Adaptability", "Increases the same-type attack bonus from 1.5× to 2×.")
-    val abilities: List<Ability> = listOf(run, adapt)
-    val pokType: List<String> = listOf("Normal")
-    return Pokemon(
-        "Eevee",
-        "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/133.png",
-        3,
-        65,
-        abilities,
-        pokType,
-        69,
-        true,
-        false,
-        false
-    )
-}
-
 @Composable
 fun DisplayInfo(pokemonInfo: Pokemon) {
 
@@ -79,12 +60,16 @@ fun DisplayInfo(pokemonInfo: Pokemon) {
                 model = pokemonInfo.iconUrl,
                 contentDescription = null,
                 modifier = Modifier
-                    .padding(top = 100.dp, bottom = 60.dp)
+                    .padding(top = 150.dp, bottom = 150.dp)
                     .scale(10.0F)
                     .align(Alignment.CenterHorizontally)
             )
             Text(
-                text = "Name: ${pokemonInfo.name}",
+                text = "Name: ${pokemonInfo.name.replaceFirstChar {
+                    if (it.isLowerCase()) it.titlecase(
+                        Locale.getDefault()
+                    ) else it.toString()
+                }}",
                 fontSize = 20.sp
             )
             Text(
@@ -126,11 +111,4 @@ fun PokemonInfo(
     viewModel.pokemon.value?.let { pokemon ->
         DisplayInfo(pokemon)
     }
-
-    DisplayedPokemonInfo(viewModel.pokemon.value)
-}
-
-@Composable
-fun DisplayedPokemonInfo(pokemon: Pokemon?) {
-
 }
