@@ -4,7 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -16,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -25,6 +28,7 @@ import androidx.navigation.fragment.navArgs
 import coil.compose.AsyncImage
 import com.example.pappokedex.domain.Pokemon
 import com.example.pappokedex.ui.theme.PapPokedexTheme
+import com.example.pappokedex.ui.theme.Shapes
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
@@ -56,6 +60,11 @@ fun DisplayInfo(pokemonInfo: Pokemon) {
     )
     {
         Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+            Text(
+                text = pokemonInfo.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
+                fontSize = 40.sp,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
             AsyncImage(
                 model = pokemonInfo.iconUrl,
                 contentDescription = null,
@@ -65,14 +74,6 @@ fun DisplayInfo(pokemonInfo: Pokemon) {
                     .align(Alignment.CenterHorizontally)
             )
             Text(
-                text = "Name: ${pokemonInfo.name.replaceFirstChar {
-                    if (it.isLowerCase()) it.titlecase(
-                        Locale.getDefault()
-                    ) else it.toString()
-                }}",
-                fontSize = 20.sp
-            )
-            Text(
                 text = "Height: %.2fm".format(pokemonInfo.height * 0.1),
                 fontSize = 20.sp
             )
@@ -80,10 +81,26 @@ fun DisplayInfo(pokemonInfo: Pokemon) {
                 text = "Weight: %.2fkg".format(pokemonInfo.weight * 0.1),
                 fontSize = 20.sp
             )
-            Text(
-                text = pokemonInfo.types.joinToString(prefix = "Types: ", separator = ", "),
-                fontSize = 20.sp
-            )
+            Row() {
+                Text(
+                    text = "Types: ",
+                    fontSize = 20.sp
+                )
+                for (type in pokemonInfo.types) {
+                    Surface(
+                        shape = MaterialTheme.shapes.medium,
+                        elevation = 3.dp,
+                        modifier = Modifier.padding(horizontal = 3.dp).border(2.dp, Color.Gray, Shapes.medium)
+                    ) {
+                        Text(
+                            text = type.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
+                            fontSize = 20.sp,
+                            modifier = Modifier.padding(horizontal = 5.dp)
+                            // style = MaterialTheme.typography.body2
+                        )
+                    }
+                }
+            }
             Text(
                 text = "Abilities:",
                 fontSize = 20.sp
