@@ -26,6 +26,8 @@ import androidx.navigation.fragment.findNavController
 import coil.compose.AsyncImage
 import com.example.pappokedex.domain.PokemonSnapshot
 import com.example.pappokedex.ui.theme.PapPokedexTheme
+import com.example.pappokedex.ui.theme.getColorBackground
+import com.example.pappokedex.ui.theme.getColorFrame
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
@@ -67,7 +69,8 @@ fun PokemonCard(pokemon: PokemonSnapshot, navigateToPokemon: (String) -> Unit) {
         shape = MaterialTheme.shapes.medium,
         elevation = 1.dp,
         // surfaceColor color will be changing gradually from primary to surface
-        color = surfaceColor,
+        //color = surfaceColor,
+        color = getColorBackground(pokemon.types[0]),
         // animateContentSize will change the Surface size gradually
         modifier = Modifier
             .animateContentSize()
@@ -98,7 +101,7 @@ fun PokemonCard(pokemon: PokemonSnapshot, navigateToPokemon: (String) -> Unit) {
             Column(modifier = Modifier.clickable { isExpanded = !isExpanded }) {
                 Text(
                     text = pokemon.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
-                    color = MaterialTheme.colors.secondaryVariant,
+                    color = MaterialTheme.colors.secondary,
                     style = MaterialTheme.typography.subtitle2
 
                 )
@@ -108,7 +111,7 @@ fun PokemonCard(pokemon: PokemonSnapshot, navigateToPokemon: (String) -> Unit) {
                 Row(modifier = Modifier.padding(all = 8.dp)) {
                     for (i in pokemon.types) {
                         Spacer(modifier = Modifier.width(5.dp))
-                        Surface(shape = MaterialTheme.shapes.medium, elevation = 1.dp) {
+                        Surface(shape = MaterialTheme.shapes.medium, color = getColorFrame(i), elevation = 1.dp) {
                             Text(
                                 text = i,
                                 modifier = Modifier.padding(all = 4.dp),
@@ -144,6 +147,8 @@ fun PokemonSnapshots(snapshots: List<PokemonSnapshot>, navigateToPokemon: (Strin
         }
     }
 }
+
+
 
 
 
