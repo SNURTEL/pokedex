@@ -1,22 +1,36 @@
+@file:OptIn(ExperimentalMaterialApi::class)
+
 package com.example.pappokedex.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
@@ -59,12 +73,12 @@ fun DisplayInfo(pokemonInfo: Pokemon) {
         color = MaterialTheme.colors.background
     )
     {
-        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+        Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 15.dp)) {
             Text(
                 text = pokemonInfo.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
                 fontSize = 40.sp,
                 style = MaterialTheme.typography.subtitle2,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
+                modifier = Modifier.align(Alignment.CenterHorizontally).padding(vertical = 5.dp)
             )
             AsyncImage(
                 model = pokemonInfo.iconUrl,
@@ -74,60 +88,48 @@ fun DisplayInfo(pokemonInfo: Pokemon) {
                     .scale(10.0F)
                     .align(Alignment.CenterHorizontally)
             )
-            Text(
-                text = "Height: %.2fm".format(pokemonInfo.height * 0.1),
-                fontSize = 20.sp,
-                style = MaterialTheme.typography.body2,
-                modifier = Modifier.padding(all = 5.dp)
-            )
-            Text(
-                text = "Weight: %.2fkg".format(pokemonInfo.weight * 0.1),
-                fontSize = 20.sp,
-                style = MaterialTheme.typography.body2,
-                modifier = Modifier.padding(all = 5.dp)
-            )
             Row() {
                 Text(
                     text = "Types: ",
                     fontSize = 20.sp,
                     style = MaterialTheme.typography.body2,
-                    modifier = Modifier.padding(all = 5.dp)
+                    modifier = Modifier.padding(vertical = 5.dp),
                 )
                 for (type in pokemonInfo.types) {
                     Surface(
                         shape = MaterialTheme.shapes.medium,
                         elevation = 2.dp,
-                        modifier = Modifier.padding(horizontal = 2.dp).border(4.dp, color = getColorFrame(type), Shapes.medium)
+                        modifier = Modifier.padding(horizontal = 5.dp).border(4.dp, color = getColorFrame(type), Shapes.medium)
                     ) {
                         Text(
                             text = type.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
                             fontSize = 20.sp,
                             style = MaterialTheme.typography.body2,
-                            modifier = Modifier.padding(all = 5.dp)
-                            // style = MaterialTheme.typography.body2
+                            modifier = Modifier.padding(horizontal = 7.dp, vertical = 5.dp),
                         )
                     }
                 }
             }
             Text(
+                text = "Height: %.2fm".format(pokemonInfo.height * 0.1),
+                fontSize = 20.sp,
+                style = MaterialTheme.typography.body2,
+                modifier = Modifier.padding(vertical = 6.dp),
+            )
+            Text(
+                text = "Weight: %.2fkg".format(pokemonInfo.weight * 0.1),
+                fontSize = 20.sp,
+                style = MaterialTheme.typography.body2,
+                modifier = Modifier.padding(vertical = 6.dp),
+            )
+            Text(
                 text = "Abilities:",
                 fontSize = 20.sp,
                 style = MaterialTheme.typography.body2,
-                modifier = Modifier.padding(all = 5.dp)
+                modifier = Modifier.padding(vertical = 5.dp)
             )
             for (ability in pokemonInfo.abilities) {
-                Text(
-                    text = "• ${ability.name}",
-                    fontSize = 20.sp,
-                    style = MaterialTheme.typography.body2,
-                    modifier = Modifier.padding(all = 5.dp)
-                )
-                Text(
-                    ability.effect_description,
-                    fontSize = 20.sp,
-                    style = MaterialTheme.typography.body2,
-                    modifier = Modifier.padding(all = 5.dp)
-                )
+                ExpandableCard(ability.name, ability.effect_description)
             }
         }
     }
@@ -141,5 +143,71 @@ fun PokemonInfo(
     viewModel.loadPokemon(pokemonName)
     viewModel.pokemon.value?.let { pokemon ->
         DisplayInfo(pokemon)
+    }
+}
+
+@ExperimentalMaterialApi
+@Composable
+fun ExpandableCard(
+    title: String,
+    description: String,
+) {
+    var expandedState by remember { mutableStateOf(false) }
+    val rotationState by animateFloatAsState(
+        targetValue = if (expandedState) 180f else 0f
+    )
+
+    Card(
+        modifier = Modifier
+            .animateContentSize(
+                animationSpec = tween(
+                    durationMillis = 300,
+                    easing = LinearOutSlowInEasing
+                )
+            ),
+        shape = Shapes.medium,
+        onClick = {
+            expandedState = !expandedState
+        }
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(all = 0.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    modifier = Modifier
+                        .padding(all = 2.dp)
+                        .weight(9f),
+                    text = title.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
+                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.body2,
+                    maxLines = 1,
+                )
+                IconButton(
+                    modifier = Modifier
+                        .weight(1f)
+                        .alpha(ContentAlpha.medium)
+                        .rotate(rotationState),
+                    onClick = {
+                        expandedState = !expandedState
+                    }) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = "Drop-Down Arrow"
+                    )
+                }
+            }
+            if (expandedState) {
+                Text(
+                    text = description,
+                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.body2,
+                    modifier = Modifier.padding(all = 2.dp),
+                )
+            }
+        }
     }
 }
