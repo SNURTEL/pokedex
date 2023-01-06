@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -18,16 +19,17 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.fragment.findNavController
 import coil.compose.AsyncImage
 import com.example.pappokedex.domain.PokemonSnapshot
-import com.example.pappokedex.ui.theme.PapPokedexTheme
-import com.example.pappokedex.ui.theme.getColorBackground
-import com.example.pappokedex.ui.theme.getColorFrame
+import com.example.pappokedex.ui.theme.*
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
@@ -67,15 +69,16 @@ fun PokemonCard(pokemon: PokemonSnapshot, navigateToPokemon: (String) -> Unit) {
 
     Surface(
         shape = MaterialTheme.shapes.medium,
-        elevation = 1.dp,
+//        elevation = 1.dp,
         // surfaceColor color will be changing gradually from primary to surface
         //color = surfaceColor,
-        color = getColorBackground(pokemon.types[0]),
+        color = Color.Transparent,
         // animateContentSize will change the Surface size gradually
         modifier = Modifier
             .animateContentSize()
-            .padding(1.dp)
+//            .padding(1.dp)
             .clickable { navigateToPokemon(pokemon.name) }
+            .background(brush = Brush.horizontalGradient(colors = listOf(White, getColorFrame(pokemon.types[0]))))
     ) {
 
         Spacer(modifier = Modifier.fillMaxWidth())
@@ -87,10 +90,10 @@ fun PokemonCard(pokemon: PokemonSnapshot, navigateToPokemon: (String) -> Unit) {
                 contentDescription = "Pokemon Icon",
                 modifier = Modifier
                     // Set image size to 40 dp
-                    .size(40.dp)
+                    .size(70.dp)
                     // Clip image to be shaped as a circle
                     .clip(CircleShape)
-                    .border(1.5.dp, MaterialTheme.colors.secondary, CircleShape)
+                    .border(3.dp, getColorFrame(pokemon.types[0]), CircleShape)
             )
 
             // Add a horizontal space between the image and the column
@@ -101,20 +104,27 @@ fun PokemonCard(pokemon: PokemonSnapshot, navigateToPokemon: (String) -> Unit) {
             Column(modifier = Modifier.clickable { isExpanded = !isExpanded }) {
                 Text(
                     text = pokemon.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
+                    fontSize = 20.sp,
                     color = MaterialTheme.colors.secondary,
-                    style = MaterialTheme.typography.subtitle2
-
+                    style = MaterialTheme.typography.subtitle2,
+                    modifier = Modifier.padding(horizontal = 6.dp)
                 )
                 // Add a vertical space between the Name and types
                 Spacer(modifier = Modifier.height(4.dp))
 
-                Row(modifier = Modifier.padding(all = 8.dp)) {
-                    for (i in pokemon.types) {
-                        Spacer(modifier = Modifier.width(5.dp))
-                        Surface(shape = MaterialTheme.shapes.medium, color = getColorFrame(i), elevation = 1.dp) {
+                Row(modifier = Modifier.padding(horizontal = 1.dp)) {
+                    for (type in pokemon.types) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Surface(
+                            shape = MaterialTheme.shapes.medium,
+                            elevation = 2.dp,
+                            color = Color.Transparent,
+                            modifier = Modifier.padding(horizontal = 1.dp).border(3.dp, color = getColorFrame(type), Shapes.medium)
+                        ) {
                             Text(
-                                text = i,
-                                modifier = Modifier.padding(all = 4.dp),
+                                text = type.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
+                                fontSize = 15.sp,
+                                modifier = Modifier.padding(all = 5.dp),
                                 // If the message is expanded, we display all its content
                                 // otherwise we only display the first line
                                 maxLines = if (isExpanded) Int.MAX_VALUE else 1,

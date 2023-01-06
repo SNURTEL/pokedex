@@ -34,27 +34,36 @@ fun getColorFrame(type:String): Color {
     return  pokemonTypesDict2[type] ?: White
 }
 val pokemonTypesDict1: MutableMap<String, Color> = hashMapOf(
-    "grass" to Green,
-    "fire" to Red2,
-    "water" to Blue,
-    "bug" to LightGreen,
-    "normal" to Normal,
-    "electric" to Yellow,
-    "poison" to Purple,
-    "flying" to LightBlue,
-    "ground" to Brown
+//    "grass" to Green,
+//    "fire" to Orange,
+//    "water" to Blue,
+//    "bug" to LightGreen,
+//    "normal" to Normal,
+//    "electric" to Yellow,
+//    "poison" to Purple,
+//    "flying" to LightPurple,
+//    "ground" to Brown
 )
 
 val pokemonTypesDict2: MutableMap<String, Color> = hashMapOf(
-    "grass" to Green2,
-    "fire" to Red,
-    "water" to Blue2,
-    "bug" to Green3,
-    "normal" to Normal2,
-    "electric" to Yellow2,
-    "poison" to Purple2,
-    "flying" to LightBlue,
-    "ground" to Brown2
+    "normal" to Normal,
+    "fire" to Orange,
+    "water" to Blue,
+    "electric" to Yellow,
+    "grass" to Green,
+    "ice" to LightBlue,
+    "fighting" to DarkRed,
+    "poison" to Purple,
+    "ground" to Yellow2,
+    "flying" to LightViolet,
+    "psychic" to Pink,
+    "bug" to YellowGreen,
+    "rock" to DarkYellow,
+    "ghost" to GrayViolet,
+    "dragon" to Violet,
+    "dark" to DarkBrown,
+    "steel" to Steel,
+    "fairy" to LightPunk
 )
 
 @Composable

@@ -18,7 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,6 +28,7 @@ import coil.compose.AsyncImage
 import com.example.pappokedex.domain.Pokemon
 import com.example.pappokedex.ui.theme.PapPokedexTheme
 import com.example.pappokedex.ui.theme.Shapes
+import com.example.pappokedex.ui.theme.getColorFrame
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
@@ -63,6 +63,7 @@ fun DisplayInfo(pokemonInfo: Pokemon) {
             Text(
                 text = pokemonInfo.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
                 fontSize = 40.sp,
+                style = MaterialTheme.typography.subtitle2,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
             AsyncImage(
@@ -75,27 +76,34 @@ fun DisplayInfo(pokemonInfo: Pokemon) {
             )
             Text(
                 text = "Height: %.2fm".format(pokemonInfo.height * 0.1),
-                fontSize = 20.sp
+                fontSize = 20.sp,
+                style = MaterialTheme.typography.body2,
+                modifier = Modifier.padding(all = 5.dp)
             )
             Text(
                 text = "Weight: %.2fkg".format(pokemonInfo.weight * 0.1),
-                fontSize = 20.sp
+                fontSize = 20.sp,
+                style = MaterialTheme.typography.body2,
+                modifier = Modifier.padding(all = 5.dp)
             )
             Row() {
                 Text(
                     text = "Types: ",
-                    fontSize = 20.sp
+                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.body2,
+                    modifier = Modifier.padding(all = 5.dp)
                 )
                 for (type in pokemonInfo.types) {
                     Surface(
                         shape = MaterialTheme.shapes.medium,
-                        elevation = 3.dp,
-                        modifier = Modifier.padding(horizontal = 3.dp).border(2.dp, Color.Gray, Shapes.medium)
+                        elevation = 2.dp,
+                        modifier = Modifier.padding(horizontal = 2.dp).border(4.dp, color = getColorFrame(type), Shapes.medium)
                     ) {
                         Text(
                             text = type.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
                             fontSize = 20.sp,
-                            modifier = Modifier.padding(horizontal = 5.dp)
+                            style = MaterialTheme.typography.body2,
+                            modifier = Modifier.padding(all = 5.dp)
                             // style = MaterialTheme.typography.body2
                         )
                     }
@@ -103,16 +111,22 @@ fun DisplayInfo(pokemonInfo: Pokemon) {
             }
             Text(
                 text = "Abilities:",
-                fontSize = 20.sp
+                fontSize = 20.sp,
+                style = MaterialTheme.typography.body2,
+                modifier = Modifier.padding(all = 5.dp)
             )
             for (ability in pokemonInfo.abilities) {
                 Text(
                     text = "• ${ability.name}",
-                    fontSize = 20.sp
+                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.body2,
+                    modifier = Modifier.padding(all = 5.dp)
                 )
                 Text(
                     ability.effect_description,
-                    fontSize = 20.sp
+                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.body2,
+                    modifier = Modifier.padding(all = 5.dp)
                 )
             }
         }
