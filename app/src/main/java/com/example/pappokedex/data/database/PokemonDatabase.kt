@@ -3,15 +3,13 @@ package com.example.pappokedex.data.database
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.example.pappokedex.data.database.entities.AbilityEntity
-import com.example.pappokedex.data.database.entities.PokemonEntity
-import com.example.pappokedex.data.database.entities.PokemonSnapshotEntity
-import com.example.pappokedex.data.database.entities.PokemonToAbilityEntity
+import com.example.pappokedex.data.database.entities.*
 
 @Database(
     entities = [
         PokemonEntity::class, PokemonSnapshotEntity::class,
-        AbilityEntity::class, PokemonToAbilityEntity::class
+        AbilityEntity::class, PokemonToAbilityEntity::class,
+        FavoritePokemon::class
     ],
     version = 1,
     exportSchema = false
