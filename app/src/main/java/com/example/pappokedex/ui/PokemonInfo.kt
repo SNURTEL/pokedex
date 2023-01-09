@@ -33,6 +33,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
@@ -42,6 +43,7 @@ import coil.compose.AsyncImage
 import com.example.pappokedex.domain.Pokemon
 import com.example.pappokedex.ui.theme.PapPokedexTheme
 import com.example.pappokedex.ui.theme.Shapes
+import com.example.pappokedex.ui.theme.White
 import com.example.pappokedex.ui.theme.getColorFrame
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
@@ -99,13 +101,16 @@ fun DisplayInfo(pokemonInfo: Pokemon) {
                     Surface(
                         shape = MaterialTheme.shapes.medium,
                         elevation = 2.dp,
+                        color = getColorFrame(type),
                         modifier = Modifier.padding(horizontal = 5.dp).border(4.dp, color = getColorFrame(type), Shapes.medium)
                     ) {
                         Text(
                             text = type.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
                             fontSize = 20.sp,
+                            color = White,
                             style = MaterialTheme.typography.body2,
                             modifier = Modifier.padding(horizontal = 7.dp, vertical = 5.dp),
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }

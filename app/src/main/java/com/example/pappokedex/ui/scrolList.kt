@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
@@ -118,17 +119,19 @@ fun PokemonCard(pokemon: PokemonSnapshot, navigateToPokemon: (String) -> Unit) {
                         Surface(
                             shape = MaterialTheme.shapes.medium,
                             elevation = 2.dp,
-                            color = Color.Transparent,
+                            color = getColorFrame(type),
                             modifier = Modifier.padding(horizontal = 1.dp).border(3.dp, color = getColorFrame(type), Shapes.medium)
                         ) {
                             Text(
                                 text = type.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
                                 fontSize = 15.sp,
+                                color = White,
                                 modifier = Modifier.padding(all = 5.dp),
                                 // If the message is expanded, we display all its content
                                 // otherwise we only display the first line
                                 maxLines = if (isExpanded) Int.MAX_VALUE else 1,
-                                style = MaterialTheme.typography.body2
+                                style = MaterialTheme.typography.body2,
+                                fontWeight = FontWeight.Bold
                             )
                         }
                     }
