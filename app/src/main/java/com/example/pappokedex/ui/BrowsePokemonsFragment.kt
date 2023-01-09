@@ -35,7 +35,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
 @AndroidEntryPoint
-class ScrollList : Fragment() {
+class BrowsePokemonsFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -52,8 +52,8 @@ class ScrollList : Fragment() {
 
     private fun navigateToDetails(pokemonName: String) {
         val action =
-            ScrollListDirections
-                .actionScrollListToDisplayPokemonInfo(pokemonName)
+            BrowsePokemonsFragmentDirections
+                .actionBrowsePokemonsFragmentToDisplayPokemonInfo(pokemonName)
         findNavController().navigate(action)
     }
 }
