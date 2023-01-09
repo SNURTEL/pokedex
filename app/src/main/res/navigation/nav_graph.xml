@@ -11,5 +11,17 @@
     <fragment
         android:id="@+id/favorite_pokemons_fragment"
         android:name="com.example.pappokedex.ui.FavoritePokemonsFragment"
-        android:label="FavoritePokemonsFragment" />
+        android:label="FavoritePokemonsFragment" >
+        <action
+            android:id="@+id/action_scrollList_to_displayPokemonInfo"
+            app:destination="@id/displayPokemonInfo" />
+    </fragment>
+    <fragment
+        android:id="@+id/displayPokemonInfo"
+        android:name="com.example.pappokedex.ui.DisplayPokemonInfo"
+        android:label="DisplayPokemonInfo" >
+        <argument
+            android:name="pokemonName"
+            app:argType="string" />
+    </fragment>
 </navigation>
