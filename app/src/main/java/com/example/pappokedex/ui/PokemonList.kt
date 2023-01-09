@@ -1,9 +1,5 @@
 package com.example.pappokedex.ui
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
@@ -21,45 +17,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.fragment.app.Fragment
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.fragment.findNavController
 import coil.compose.AsyncImage
 import com.example.pappokedex.domain.PokemonSnapshot
-import com.example.pappokedex.ui.theme.*
-import dagger.hilt.android.AndroidEntryPoint
+import com.example.pappokedex.ui.theme.Shapes
+import com.example.pappokedex.ui.theme.White
+import com.example.pappokedex.ui.theme.getColorFrame
 import java.util.*
 
-@AndroidEntryPoint
-class ScrollList : Fragment() {
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        return ComposeView(requireContext()).apply {
-            setContent {
-                PapPokedexTheme() {
-                    PokemonList(::navigateToDetails)
-                }
-            }
-        }
-    }
 
-    private fun navigateToDetails(pokemonName: String) {
-        val action =
-            ScrollListDirections
-                .actionScrollListToDisplayPokemonInfo(pokemonName)
-        findNavController().navigate(action)
+@Composable
+fun PokemonList(snapshots: List<PokemonSnapshot>, navigateToPokemon: (String) -> Unit) {
+    LazyColumn() {
+        items(snapshots) {
+            PokemonListEntry(it, navigateToPokemon)
+        }
     }
 }
 
+
 @Composable
-fun PokemonCard(pokemon: PokemonSnapshot, navigateToPokemon: (String) -> Unit) {
+fun PokemonListEntry(pokemon: PokemonSnapshot, navigateToPokemon: (String) -> Unit) {
 
     // Add padding
     var isExpanded by remember { mutableStateOf(false) }
@@ -79,12 +59,22 @@ fun PokemonCard(pokemon: PokemonSnapshot, navigateToPokemon: (String) -> Unit) {
             .animateContentSize()
 //            .padding(1.dp)
             .clickable { navigateToPokemon(pokemon.name) }
-            .background(brush = Brush.horizontalGradient(colors = listOf(White, getColorFrame(pokemon.types[0]))))
+            .background(
+                brush = Brush.horizontalGradient(
+                    colors = listOf(
+                        White,
+                        getColorFrame(pokemon.types[0])
+                    )
+                )
+            )
     ) {
 
         Spacer(modifier = Modifier.fillMaxWidth())
 
-        Row(modifier = Modifier.padding(all = 8.dp)) {
+        Row(modifier = Modifier
+            .padding(all = 8.dp)
+            .clickable { navigateToPokemon(pokemon.name) }
+        ) {
 
             AsyncImage(
                 model = pokemon.iconUrl,
@@ -95,6 +85,7 @@ fun PokemonCard(pokemon: PokemonSnapshot, navigateToPokemon: (String) -> Unit) {
                     // Clip image to be shaped as a circle
                     .clip(CircleShape)
                     .border(3.dp, getColorFrame(pokemon.types[0]), CircleShape)
+                    .clickable { navigateToPokemon(pokemon.name) }
             )
 
             // Add a horizontal space between the image and the column
@@ -108,7 +99,10 @@ fun PokemonCard(pokemon: PokemonSnapshot, navigateToPokemon: (String) -> Unit) {
                     fontSize = 20.sp,
                     color = MaterialTheme.colors.secondary,
                     style = MaterialTheme.typography.subtitle2,
-                    modifier = Modifier.padding(horizontal = 6.dp)
+                    modifier = Modifier
+                        .padding(horizontal = 6.dp)
+                        .clickable { navigateToPokemon(pokemon.name) }
+
                 )
                 // Add a vertical space between the Name and types
                 Spacer(modifier = Modifier.height(4.dp))
@@ -120,10 +114,16 @@ fun PokemonCard(pokemon: PokemonSnapshot, navigateToPokemon: (String) -> Unit) {
                             shape = MaterialTheme.shapes.medium,
                             elevation = 2.dp,
                             color = getColorFrame(type),
-                            modifier = Modifier.padding(horizontal = 1.dp).border(3.dp, color = getColorFrame(type), Shapes.medium)
+                            modifier = Modifier
+                                .padding(horizontal = 1.dp)
+                                .border(3.dp, color = getColorFrame(type), Shapes.medium)
                         ) {
                             Text(
-                                text = type.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
+                                text = type.replaceFirstChar {
+                                    if (it.isLowerCase()) it.titlecase(
+                                        Locale.getDefault()
+                                    ) else it.toString()
+                                },
                                 fontSize = 15.sp,
                                 color = White,
                                 modifier = Modifier.padding(all = 5.dp),
@@ -141,29 +141,4 @@ fun PokemonCard(pokemon: PokemonSnapshot, navigateToPokemon: (String) -> Unit) {
         }
     }
 }
-
-
-@Composable
-fun PokemonList(
-    navigateToPokemon: (String) -> Unit,
-    viewModel: MyViewModel = hiltViewModel()
-) {
-    viewModel.loadSnapshots()
-    PokemonSnapshots(viewModel.pokemonSnapshots.value, navigateToPokemon)
-}
-
-@Composable
-fun PokemonSnapshots(snapshots: List<PokemonSnapshot>, navigateToPokemon: (String) -> Unit) {
-    LazyColumn() {
-        items(snapshots) {
-            PokemonCard(it, navigateToPokemon)
-        }
-    }
-}
-
-
-
-
-
-
 

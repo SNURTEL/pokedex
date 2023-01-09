@@ -21,11 +21,15 @@ class MyViewModel @Inject constructor(
     val pokemonSnapshots: State<List<PokemonSnapshot>> = _pokemonSnapshots
     private val _pokemon = mutableStateOf<Pokemon?>(null)
     val pokemon: State<Pokemon?> = _pokemon
-    fun loadSnapshots() =
-        viewModelScope.launch { _pokemonSnapshots.value = repository.getPokemonSnapshots() }
+    private val _favoritesSnapshots = mutableStateOf(emptyList<PokemonSnapshot>())
+    val favoritesSnapshots: State<List<PokemonSnapshot>> = _favoritesSnapshots
 
-    fun getList(): State<List<PokemonSnapshot>> {
-        loadSnapshots()
+    fun loadAllSnapshots() =
+        viewModelScope.launch { _pokemonSnapshots.value = repository.getAllSnapshots() }
+
+    // todo rewrite explicit getters to be called when accessing a field
+    fun getPokemonList(): State<List<PokemonSnapshot>> {
+        loadAllSnapshots()
         return pokemonSnapshots
     }
 
@@ -36,4 +40,23 @@ class MyViewModel @Inject constructor(
         loadPokemon(name)
         return pokemon
     }
+
+    fun loadFavoritesSnapshots() =
+        viewModelScope.launch { _favoritesSnapshots.value = repository.getFavoriteSnapshots() }
+
+    fun isPokemonInFavorites(pokemon: Pokemon): Boolean {
+        loadFavoritesSnapshots()
+        return favoritesSnapshots.value
+            .map { it.name }
+            .contains(pokemon.name)
+    }
+
+    fun setFavoritePokemon(pokemon: Pokemon, isFavorite: Boolean) =
+        viewModelScope.launch {
+            if (isFavorite) repository.setFavoritePokemon(pokemon.name) else repository.removeFavoritePokemon(
+                pokemon.name
+            )
+            loadFavoritesSnapshots()
+        }
+
 }
