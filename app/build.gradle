@@ -137,4 +137,6 @@ dependencies {
     implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
 
     implementation 'com.jakewharton.timber:timber:5.0.1'
+    implementation "androidx.hilt:hilt-navigation-compose:1.0.0"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1"
 }
