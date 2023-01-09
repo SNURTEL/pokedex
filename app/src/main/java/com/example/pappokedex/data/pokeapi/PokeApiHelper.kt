@@ -10,6 +10,7 @@ class PokeApiHelper {
     private val baseUrl = "https://pokeapi.co/api/v2/"
     private val contentType = "application/json".toMediaType()
     private val json = Json { ignoreUnknownKeys = true }
+    @OptIn(ExperimentalSerializationApi::class)
     private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(baseUrl)

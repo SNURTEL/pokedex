@@ -5,7 +5,6 @@ import com.example.pappokedex.data.database.mapPokemonEntityToDomain
 import com.example.pappokedex.data.database.mapPokemonSnapshotEntityToDomain
 import com.example.pappokedex.data.pokeapi.PokeApi
 import com.example.pappokedex.data.pokeapi.mapModelsToPokemon
-import com.example.pappokedex.data.pokeapi.models.PokemonResourceModel
 import com.example.pappokedex.domain.Pokemon
 import com.example.pappokedex.domain.PokemonRepository
 import com.example.pappokedex.domain.PokemonSnapshot
@@ -17,25 +16,58 @@ class PokemonRepositoryImp @Inject constructor(
     private val pokemonRemoteApi: PokeApi,
     private val pokemonDatabaseDao: PokemonDao
 ) : PokemonRepository {
+
     override suspend fun getPokemonSnapshots(): List<PokemonSnapshot> =
         withContext(Dispatchers.IO) {
             val response = pokemonRemoteApi.getAllPokeResources()
 
             val pokemonResources =
-                response.body()?.results?.slice(0..30) ?: return@withContext listOf()
+                response.body()?.results?.slice(0..29) ?: return@withContext listOf()
 
-            val pokemons = pokemonResources.map { pokemonRes ->
-                async { pokemonDomainFromResourceModel(pokemonRes) }
-            }.awaitAll().filterNotNull()
-            pokemonDatabaseDao.insertPokemonData(pokemons)
+            val pokemonSnapshotsFromDb = pokemonDatabaseDao.getPokemonSnapshots().map {
+                mapPokemonSnapshotEntityToDomain(it)
+            }
+            // works properly only after disabling the 30 call limit!
+            if (pokemonResources.count() != pokemonSnapshotsFromDb.count()) {
+                val missingPokemonNames = pokemonResources
+                    .map { it.name }
+                    .minus(pokemonSnapshotsFromDb.map { it.name }.toSet())
+
+                pokemonDatabaseDao.insertPokemonData(missingPokemonNames.map { pokemonName ->
+                    async { getPokemonFromRemoteApi(pokemonName) }
+                }.awaitAll()
+                    .also {
+                        if (it.contains(null)) {
+                            return@withContext listOf()
+                        }
+                    }.filterNotNull()
+                )
+            }
 
             pokemonDatabaseDao.getPokemonSnapshots().map(::mapPokemonSnapshotEntityToDomain)
         }
 
-    private suspend fun pokemonDomainFromResourceModel(pokemon: PokemonResourceModel): Pokemon? =
+
+    override suspend fun getPokemon(name: String): Pokemon? =
+        withContext(Dispatchers.IO) {
+            getPokemonFromDB(name) ?: getPokemonFromRemoteApi(name)?.also {
+                pokemonDatabaseDao.insertPokemonData(listOf(it))
+            }
+        }
+
+    private suspend fun getPokemonFromDB(name: String): Pokemon? =
+        coroutineScope {
+            val entity = let { pokemonDatabaseDao.getPokemon(name) } ?: return@coroutineScope null
+            entity.let {
+                val pokeAbilities = pokemonDatabaseDao.getPokemonAbilities(name)
+                mapPokemonEntityToDomain(it, pokeAbilities)
+            }
+        }
+
+    private suspend fun getPokemonFromRemoteApi(pokemonName: String): Pokemon? =
         coroutineScope {
             val model =
-                getResponseBodyOrNull { pokemonRemoteApi.getPokemon(pokemon.name) }
+                getResponseBodyOrNull { pokemonRemoteApi.getPokemon(pokemonName) }
                     ?: return@coroutineScope null
 
             val abilityModels =
@@ -48,21 +80,18 @@ class PokemonRepositoryImp @Inject constructor(
                         }
                     }
                     .awaitAll()
+                    .also {
+                        if (it.contains(null)) {
+                            return@coroutineScope null
+                        }
+                    }
                     .filterNotNull()
 
-
-            val speciesModel = getResponseBodyOrNull { pokemonRemoteApi.getSpecies(pokemon.name) }
+            val speciesModel = getResponseBodyOrNull { pokemonRemoteApi.getSpecies(pokemonName) }
                 ?: return@coroutineScope null
 
             mapModelsToPokemon(model, speciesModel, abilityModels)
         }
-
-    private suspend fun <T> getResponseBodyOrNull(query: suspend () -> Response<T>) = query().body()
-
-    override suspend fun getPokemon(name: String): Pokemon? =
-        withContext(Dispatchers.IO) {
-            val entity = pokemonDatabaseDao.getPokemon(name) ?: return@withContext null
-            val abilities = pokemonDatabaseDao.getPokemonAbilities(name)
-            mapPokemonEntityToDomain(entity, abilities)
-        }
 }
+
+private suspend fun <T> getResponseBodyOrNull(query: suspend () -> Response<T>) = query().body()
