@@ -1,13 +1,11 @@
 package com.example.pappokedex.data.database
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.example.pappokedex.data.database.entities.AbilityEntity
-import com.example.pappokedex.data.database.entities.PokemonEntity
-import com.example.pappokedex.data.database.entities.PokemonSnapshotEntity
-import com.example.pappokedex.data.database.entities.PokemonToAbilityEntity
+import com.example.pappokedex.data.database.entities.*
 import com.example.pappokedex.domain.Pokemon
 
 @Dao
@@ -72,4 +70,10 @@ interface PokemonDao {
 
     @Query("SELECT abilityName FROM pokemon_to_ability WHERE pokemonName = :pokemonName")
     suspend fun getPokemonAbilitiesNames(pokemonName: String): List<String>
+
+    @Query("SELECT * FROM favorite_pokemons")
+    suspend fun getFavoritePokemonIds(): List<FavoritePokemon>
+
+    @Query("DELETE FROM favorite_pokemons WHERE id = :id")
+    suspend fun deleteFavouritePokemons(id: Int)
 }

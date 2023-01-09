@@ -2,16 +2,16 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/scrollList">
+    app:startDestination="@id/browse_pokemons_fragment">
 
     <fragment
-        android:id="@+id/dummyFragment"
+        android:id="@+id/browse_pokemons_fragment"
         android:name="com.example.pappokedex.ui.DummyFragment"
         android:label="DummyFragment"/>
     <fragment
-        android:id="@+id/scrollList"
-        android:name="com.example.pappokedex.ui.ScrollList"
-        android:label="ScrollList" >
+        android:id="@+id/favorite_pokemons_fragment"
+        android:name="com.example.pappokedex.ui.FavoritePokemonsFragment"
+        android:label="FavoritePokemonsFragment" >
         <action
             android:id="@+id/action_scrollList_to_displayPokemonInfo"
             app:destination="@id/displayPokemonInfo" />
