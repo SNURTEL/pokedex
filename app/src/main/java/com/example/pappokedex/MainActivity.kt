@@ -2,6 +2,7 @@ package com.example.pappokedex
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentContainerView
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
@@ -23,14 +24,15 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val navController = navHostFragment.navController
 
-        val appBarConfiguration = AppBarConfiguration(setOf(R.id.browse_pokemons_fragment, R.id.favorite_pokemons_fragment))
+        val appBarConfiguration = AppBarConfiguration(setOf(R.id.browse_pokemons_bottom_nav, R.id.favorite_pokemons_bottom_nav))
 
         setupActionBarWithNavController(this, navController, appBarConfiguration)
         actionBar?.setDisplayHomeAsUpEnabled(true)
 
-        val bottomNavigationView =
-            findViewById<BottomNavigationView>(R.id.bottom_navigation_view)
-        NavigationUI.setupWithNavController(bottomNavigationView, navController)
+//        val bottomNavigationView =
+//            findViewById<BottomNavigationView>(R.id.bottom_navigation_view)
+//        NavigationUI.setupWithNavController(bottomNavigationView, navController)
+        NavigationUI.setupWithNavController(findViewById<FragmentContainerView>(R.id.nav_host_fragment), navController)
     }
 
     override fun onSupportNavigateUp(): Boolean {

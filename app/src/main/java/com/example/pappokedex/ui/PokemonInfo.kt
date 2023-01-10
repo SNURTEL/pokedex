@@ -6,15 +6,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,16 +20,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,6 +36,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import coil.compose.AsyncImage
 import com.example.pappokedex.domain.Pokemon
@@ -59,7 +51,7 @@ import java.util.*
 
 @AndroidEntryPoint
 class DisplayPokemonInfo : Fragment() {
-    val args: DisplayPokemonInfoArgs by navArgs()
+    private val args: DisplayPokemonInfoArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -69,17 +61,18 @@ class DisplayPokemonInfo : Fragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 PapPokedexTheme {
-                    PokemonInfo(pokemonName = args.pokemonName)
+                    PokemonInfoInScaffold(pokemonName = args.pokemonName,
+                        navController = findNavController())
                 }
             }
         }
     }
 }
 
-
 @Composable
-fun PokemonInfo(
+fun PokemonInfoInScaffold(
     pokemonName: String,
+    navController: NavController,
     viewModel: MyViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
@@ -88,13 +81,15 @@ fun PokemonInfo(
     viewModel.pokemon.value?.let { pokemon ->
         Scaffold(
             floatingActionButton = {
-                FloatingActionButton(
-                    onClick = {
-                        val newFavState = !viewModel.isPokemonInFavorites(pokemon)
+                FavoriteButton(
+                    pokemon = pokemon,
+                    isFavorite = viewModel.isPokemonInFavorites(pokemon),
+                    callback = {
+                        val newFavState = !it
                         viewModel.setFavoritePokemon(pokemon, newFavState)
                         Toast.makeText(
                             context,
-                            if (newFavState == true) "%s added to favorites!".format(
+                            if (newFavState) "%s added to favorites!".format(
                                 pokemon.name.uppercase(
                                     Locale.getDefault()
                                 )
@@ -102,22 +97,61 @@ fun PokemonInfo(
                             else "%s removed from favorites!".format(pokemon.name.uppercase(Locale.getDefault())),
                             Toast.LENGTH_SHORT
                         ).show()
+                    }
+                )
+            },
+            bottomBar = {
+                BottomNav(onSelect = listOf(
+                    {
+                        val action =
+                            DisplayPokemonInfoDirections.actionDisplayPokemonInfoToBrowsePokemonsBottomNav()
+                        navController.navigate(action)
                     },
-                    backgroundColor = pokemon.types.getOrNull(0)?.let { getColorFrame(it) }
-                        ?: MaterialTheme.colors.primary,
-                    contentColor = MaterialTheme.colors.onPrimary,
-                ) {
-                    Icon(
-                        if (viewModel.isPokemonInFavorites(pokemon)) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                        ""
-                    )
-                }
+                    {
+                        val action =
+                            DisplayPokemonInfoDirections.actionDisplayPokemonInfoToFavoritePokemonsBottomNav()
+                        navController.navigate(action)
+                    }
+                ))
             },
             content = {
-                Timber.tag("POKEMON INFO").d("Reload ${pokemon.name} info page")
-                DisplayInfo(pokemon)
+                PokemonInfo(pokemonName = pokemonName, viewModel = viewModel)
                 it.calculateTopPadding()
-            } // ??? u wot
+            }
+        )
+    }
+}
+
+
+@Composable
+fun PokemonInfo(
+    pokemonName: String,
+    viewModel: MyViewModel,
+) {
+    viewModel.loadPokemon(pokemonName)
+    viewModel.pokemon.value?.let { pokemon ->
+        Timber.tag("POKEMON INFO").d("Reload ${pokemon.name} info page")
+        DisplayInfo(pokemon)
+    }
+}
+
+@Composable
+fun FavoriteButton(
+    pokemon: Pokemon,
+    isFavorite: Boolean,
+    callback: (Boolean) -> Unit
+) {
+    FloatingActionButton(
+        onClick = {
+            callback(isFavorite)
+        },
+        backgroundColor = pokemon.types.getOrNull(0)?.let { getColorFrame(it) }
+            ?: MaterialTheme.colors.primary,
+        contentColor = MaterialTheme.colors.onPrimary,
+    ) {
+        Icon(
+            if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+            ""
         )
     }
 }
@@ -151,7 +185,7 @@ fun DisplayInfo(pokemonInfo: Pokemon) {
                     .scale(10.0F)
                     .align(Alignment.CenterHorizontally)
             )
-            Row() {
+            Row {
                 Text(
                     text = "Types: ",
                     fontSize = 20.sp,

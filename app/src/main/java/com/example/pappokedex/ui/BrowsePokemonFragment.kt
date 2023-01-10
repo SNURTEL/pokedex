@@ -4,13 +4,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.material.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.example.pappokedex.ui.theme.*
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
 @AndroidEntryPoint
 class BrowsePokemonFragment : Fragment() {
@@ -21,20 +25,38 @@ class BrowsePokemonFragment : Fragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                PapPokedexTheme() {
-                    BrowsePokemonList(::navigateToDetails)
+                PapPokedexTheme {
+                    BrowsePokemonListInScaffold(navController = findNavController())
                 }
             }
         }
     }
+}
 
-    private fun navigateToDetails(pokemonName: String) {
-        val action =
-            BrowsePokemonFragmentDirections.actionBrowsePokemonsFragmentToDisplayPokemonInfo(
-                pokemonName
-            )
-        findNavController().navigate(action)
-    }
+@Composable
+fun BrowsePokemonListInScaffold(
+    viewModel: MyViewModel = hiltViewModel(),
+    navController: NavController
+) {
+    Scaffold(
+        bottomBar = {
+            BottomNav(onSelect = listOf({}, {
+                val action =
+                    BrowsePokemonFragmentDirections.actionBrowsePokemonsBottomNavToFavoritePokemonsBottomNav()
+                navController.navigate(action)
+            }))
+        },
+        content = {
+            BrowsePokemonList(navigateToPokemon = {
+                val action =
+                    BrowsePokemonFragmentDirections.actionBrowsePokemonsFragmentToDisplayPokemonInfo(
+                        it
+                    )
+                navController.navigate(action)
+            })
+            it.calculateTopPadding()
+        }
+    )
 }
 
 @Composable

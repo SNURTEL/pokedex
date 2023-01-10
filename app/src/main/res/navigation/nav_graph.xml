@@ -2,23 +2,29 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/browse_pokemons_fragment">
+    app:startDestination="@id/browse_pokemons_bottom_nav">
 
     <fragment
-        android:id="@+id/browse_pokemons_fragment"
+        android:id="@+id/browse_pokemons_bottom_nav"
         android:name="com.example.pappokedex.ui.BrowsePokemonFragment"
         android:label="BrowsePokemonFragment">
         <action
             android:id="@+id/action_browse_pokemons_fragment_to_displayPokemonInfo"
             app:destination="@id/displayPokemonInfo" />
+        <action
+            android:id="@+id/action_browse_pokemons_bottom_nav_to_favorite_pokemons_bottom_nav"
+            app:destination="@id/favorite_pokemons_bottom_nav" />
     </fragment>
     <fragment
-        android:id="@+id/favorite_pokemons_fragment"
+        android:id="@+id/favorite_pokemons_bottom_nav"
         android:name="com.example.pappokedex.ui.FavoritePokemonsFragment"
         android:label="FavoritePokemonsFragment" >
         <action
             android:id="@+id/action_favorite_to_displayPokemonInfo"
             app:destination="@id/displayPokemonInfo" />
+        <action
+            android:id="@+id/action_favorite_pokemons_bottom_nav_to_browse_pokemons_bottom_nav"
+            app:destination="@id/browse_pokemons_bottom_nav" />
     </fragment>
     <fragment
         android:id="@+id/displayPokemonInfo"
@@ -27,5 +33,11 @@
         <argument
             android:name="pokemonName"
             app:argType="string" />
+        <action
+            android:id="@+id/action_displayPokemonInfo_to_browse_pokemons_bottom_nav"
+            app:destination="@id/browse_pokemons_bottom_nav" />
+        <action
+            android:id="@+id/action_displayPokemonInfo_to_favorite_pokemons_bottom_nav"
+            app:destination="@id/favorite_pokemons_bottom_nav" />
     </fragment>
 </navigation>
