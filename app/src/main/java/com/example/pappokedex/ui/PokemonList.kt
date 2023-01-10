@@ -9,10 +9,15 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -39,7 +44,7 @@ fun PokemonList(snapshots: List<PokemonSnapshot>, navigateToPokemon: (String) ->
 
 
 @Composable
-fun PokemonListEntry(pokemon: PokemonSnapshot, navigateToPokemon: (String) -> Unit) {
+fun PokemonListEntry(pokemon: PokemonSnapshot, navigateToPokemon: (String) -> Unit, isFavorite: Boolean = false) {
 
     // Add padding
     var isExpanded by remember { mutableStateOf(false) }
@@ -138,6 +143,13 @@ fun PokemonListEntry(pokemon: PokemonSnapshot, navigateToPokemon: (String) -> Un
                 }
 
             }
+            // todo display favorite icon when needed
+//            Spacer(Modifier.weight(1f))
+//            Icon(if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder, "", Modifier
+//                .align(Alignment.CenterVertically)
+//                .padding(16.dp)
+//                .size(30.dp),
+//            tint = if (isFavorite) Color.White else Color.Transparent)
         }
     }
 }
