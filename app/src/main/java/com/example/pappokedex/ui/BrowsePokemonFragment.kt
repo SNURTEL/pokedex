@@ -4,16 +4,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.fragment.findNavController
-import com.example.pappokedex.ui.theme.PapPokedexTheme
+import com.example.pappokedex.ui.theme.*
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class FavoritePokemonsFragment : Fragment() {
+class BrowsePokemonFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -22,7 +22,7 @@ class FavoritePokemonsFragment : Fragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 PapPokedexTheme() {
-                    FavoritePokemonList(::navigateToDetails)
+                    BrowsePokemonList(::navigateToDetails)
                 }
             }
         }
@@ -30,17 +30,26 @@ class FavoritePokemonsFragment : Fragment() {
 
     private fun navigateToDetails(pokemonName: String) {
         val action =
-            FavoritePokemonsFragmentDirections
-                .actionFavoriteToDisplayPokemonInfo(pokemonName)
+            BrowsePokemonFragmentDirections.actionBrowsePokemonsFragmentToDisplayPokemonInfo(
+                pokemonName
+            )
         findNavController().navigate(action)
     }
 }
 
 @Composable
-fun FavoritePokemonList(
+fun BrowsePokemonList(
     navigateToPokemon: (String) -> Unit,
     viewModel: MyViewModel = hiltViewModel()
 ) {
-    viewModel.loadFavoritesSnapshots()
-    PokemonList(viewModel.favoritesSnapshots.value, navigateToPokemon)
+    viewModel.loadAllSnapshots()
+    PokemonList(viewModel.pokemonSnapshots.value, navigateToPokemon)
 }
+
+
+
+
+
+
+
+

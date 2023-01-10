@@ -64,16 +64,18 @@ interface PokemonDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAbilityRelation(abilityRelation: PokemonToAbilityEntity)
 
-
     @Query("SELECT * FROM abilities WHERE name = :name LIMIT 1")
     suspend fun getAbility(name: String): AbilityEntity?
 
     @Query("SELECT abilityName FROM pokemon_to_ability WHERE pokemonName = :pokemonName")
     suspend fun getPokemonAbilitiesNames(pokemonName: String): List<String>
 
-    @Query("SELECT * FROM favorite_pokemons")
-    suspend fun getFavoritePokemonIds(): List<FavoritePokemon>
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertFavoritePokemon(favPokemon: FavoritePokemon)
 
-    @Query("DELETE FROM favorite_pokemons WHERE id = :id")
-    suspend fun deleteFavouritePokemons(id: Int)
+    @Query("SELECT * FROM favorite_pokemons fp join pokemons p on fp.name = p.name")
+    suspend fun getFavoritePokemonSnapshots(): List<PokemonSnapshotEntity>
+
+    @Query("DELETE FROM favorite_pokemons WHERE name = :name")
+    suspend fun deleteFavouritePokemons(name: String)
 }

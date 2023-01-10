@@ -1,6 +1,7 @@
 package com.example.pappokedex.data.database
 
 import com.example.pappokedex.data.database.entities.AbilityEntity
+import com.example.pappokedex.data.database.entities.FavoritePokemon
 import com.example.pappokedex.data.database.entities.PokemonEntity
 import com.example.pappokedex.data.database.entities.PokemonSnapshotEntity
 import com.example.pappokedex.domain.Ability
@@ -52,3 +53,7 @@ fun mapPokemonSnapshotEntityToDomain(snapshotEntity: PokemonSnapshotEntity) =
     with(snapshotEntity) {
         PokemonSnapshot(name, iconUrl, types)
     }
+
+fun domainToFavoritePokemon(pokemon: Pokemon) = FavoritePokemon(pokemon.name)
+
+fun domainToFavoritePokemon(pokemon: PokemonSnapshot) = FavoritePokemon(pokemon.name)

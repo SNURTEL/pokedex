@@ -1,6 +1,9 @@
 package com.example.pappokedex.data
 
+import android.util.Log
 import com.example.pappokedex.data.database.PokemonDao
+import com.example.pappokedex.data.database.domainToFavoritePokemon
+import com.example.pappokedex.data.database.entities.FavoritePokemon
 import com.example.pappokedex.data.database.mapPokemonEntityToDomain
 import com.example.pappokedex.data.database.mapPokemonSnapshotEntityToDomain
 import com.example.pappokedex.data.pokeapi.PokeApi
@@ -10,6 +13,7 @@ import com.example.pappokedex.domain.PokemonRepository
 import com.example.pappokedex.domain.PokemonSnapshot
 import kotlinx.coroutines.*
 import retrofit2.Response
+import timber.log.Timber
 import javax.inject.Inject
 
 class PokemonRepositoryImp @Inject constructor(
@@ -17,7 +21,7 @@ class PokemonRepositoryImp @Inject constructor(
     private val pokemonDatabaseDao: PokemonDao
 ) : PokemonRepository {
 
-    override suspend fun getPokemonSnapshots(): List<PokemonSnapshot> =
+    override suspend fun getAllSnapshots(): List<PokemonSnapshot> =
         withContext(Dispatchers.IO) {
             val response = pokemonRemoteApi.getAllPokeResources()
 
@@ -45,6 +49,26 @@ class PokemonRepositoryImp @Inject constructor(
             }
 
             pokemonDatabaseDao.getPokemonSnapshots().map(::mapPokemonSnapshotEntityToDomain)
+        }
+
+    override suspend fun getFavoriteSnapshots(): List<PokemonSnapshot> =
+        withContext(Dispatchers.IO) {
+            pokemonDatabaseDao.getFavoritePokemonSnapshots().map(::mapPokemonSnapshotEntityToDomain)
+        }
+
+    override suspend fun setFavoritePokemon(name: String) =
+        withContext(Dispatchers.IO) {
+            pokemonDatabaseDao.insertFavoritePokemon(FavoritePokemon(name))
+            Timber.tag("REPO").d("Insert $name as favorite")
+            return@withContext
+        }
+
+
+    override suspend fun removeFavoritePokemon(name: String) =
+        withContext(Dispatchers.IO) {
+            pokemonDatabaseDao.deleteFavouritePokemons(name)
+            Timber.tag("REPO").d("Remove $name from favorites")
+            return@withContext
         }
 
 

@@ -92,7 +92,7 @@ class PokemonRepositoryTest {
             repo.getPokemon("ivysaur")
             repo.getPokemon("venusaur")
 
-            val snapshots = repo.getPokemonSnapshots()
+            val snapshots = repo.getAllSnapshots()
             assert(api.getPokemonCallCounter == snapshots.size)   // no repeated calls, 3 saved
             return@runBlocking
         }
@@ -109,9 +109,9 @@ class PokemonRepositoryTest {
             val api = TestApiWrapper(PokeApiHelper().getApi())
             val repo = PokemonRepositoryImp(api, dao)
 
-            val snapshots = repo.getPokemonSnapshots()
+            val snapshots = repo.getAllSnapshots()
             val initialCalls = api.getPokemonCallCounter
-            val newSnapshots = repo.getPokemonSnapshots()
+            val newSnapshots = repo.getAllSnapshots()
             assert(api.getPokemonCallCounter == initialCalls)   // no more calls
             assert(snapshots.count() == newSnapshots.count())
 
