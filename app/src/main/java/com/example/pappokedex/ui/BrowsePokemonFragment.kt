@@ -42,8 +42,9 @@ fun BrowsePokemonList(
     navigateToPokemon: (String) -> Unit,
     viewModel: MyViewModel = hiltViewModel()
 ) {
-    viewModel.loadAllSnapshots()
-    PokemonList(viewModel.pokemonSnapshots.value, navigateToPokemon)
+    remember { viewModel.loadAllSnapshots() }
+    val snapshots = viewModel.pokemonSnapshots.collectAsState()
+    PokemonList(snapshots.value, navigateToPokemon)
 }
 
 
