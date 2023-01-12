@@ -33,9 +33,19 @@ import com.example.pappokedex.ui.theme.getColorFrame
 import java.util.*
 
 @Composable
-fun PokemonList(snapshots: List<PokemonSnapshot>, navigateToPokemon: (String) -> Unit) {
+fun PokemonList(
+    snapshots: List<PokemonSnapshot>,
+    navigateToPokemon: (String) -> Unit,
+    sortSelector: ((PokemonSnapshot) -> Comparable<Any>?)? = null,
+    filterSelector: ((PokemonSnapshot) -> Boolean) = { true }
+) {
     LazyColumn() {
-        items(snapshots) {
+        items(
+            snapshots
+                .apply {
+                    filter { filterSelector(it) }
+                    sortSelector?.let { sortedBy { sortSelector(it) } }
+                }) {
             PokemonListEntry(it, navigateToPokemon)
         }
     }
@@ -43,7 +53,11 @@ fun PokemonList(snapshots: List<PokemonSnapshot>, navigateToPokemon: (String) ->
 
 
 @Composable
-fun PokemonListEntry(pokemon: PokemonSnapshot, navigateToPokemon: (String) -> Unit, isFavorite: Boolean = false) {
+fun PokemonListEntry(
+    pokemon: PokemonSnapshot,
+    navigateToPokemon: (String) -> Unit,
+    isFavorite: Boolean = false
+) {
 
     // Add padding
     var isExpanded by remember { mutableStateOf(false) }
