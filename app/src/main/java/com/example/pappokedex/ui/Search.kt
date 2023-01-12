@@ -91,6 +91,7 @@ fun CollapsedSearchView(
             Icon(
                 Icons.Outlined.Search,
                 "search icon",
+                tint = MaterialTheme.colors.onPrimary
             )
         }
     }
@@ -103,7 +104,7 @@ fun ExpandedSearchView(
     onSearchDisplayClosed: () -> Unit,
     onExpandedChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    tint: Color = MaterialTheme.colors.onPrimary,
+    tint: Color = MaterialTheme.colors.primary,
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -129,6 +130,7 @@ fun ExpandedSearchView(
             Icon(
                 Icons.Outlined.ArrowBack,
                 "back icon",
+                tint = MaterialTheme.colors.onPrimary
             )
         }
         TextField(
@@ -141,13 +143,14 @@ fun ExpandedSearchView(
                 Icon(
                     Icons.Outlined.Search,
                     "search icon",
+                    tint = MaterialTheme.colors.onPrimary
                 )
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(textFieldFocusRequester),
             label = {
-                Text(text = "Search", color = tint)
+                Text(text = "Search", color = MaterialTheme.colors.onPrimary)
             },
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Done
