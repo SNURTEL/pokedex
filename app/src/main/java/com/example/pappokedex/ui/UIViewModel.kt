@@ -9,6 +9,7 @@ import com.example.pappokedex.domain.Pokemon
 import com.example.pappokedex.domain.PokemonRepository
 import com.example.pappokedex.domain.PokemonSnapshot
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -17,21 +18,14 @@ class MyViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val repository: PokemonRepository,
 ) : ViewModel() {
-    private val _pokemonSnapshots = mutableStateOf(emptyList<PokemonSnapshot>())
-    val pokemonSnapshots: State<List<PokemonSnapshot>> = _pokemonSnapshots
+    val pokemonSnapshots: StateFlow<List<PokemonSnapshot>> = repository.snapshotsFlow
+    val favouritesSnapshots: StateFlow<List<PokemonSnapshot>> = repository.favouritesFlow
+
     private val _pokemon = mutableStateOf<Pokemon?>(null)
     val pokemon: State<Pokemon?> = _pokemon
-    private val _favoritesSnapshots = mutableStateOf(emptyList<PokemonSnapshot>())
-    val favoritesSnapshots: State<List<PokemonSnapshot>> = _favoritesSnapshots
 
     fun loadAllSnapshots() =
-        viewModelScope.launch { _pokemonSnapshots.value = repository.getAllSnapshots() }
-
-    // todo rewrite explicit getters to be called when accessing a field
-    fun getPokemonList(): State<List<PokemonSnapshot>> {
-        loadAllSnapshots()
-        return pokemonSnapshots
-    }
+        viewModelScope.launch { repository.getAllSnapshots() }
 
     fun loadPokemon(name: String) =
         viewModelScope.launch { _pokemon.value = repository.getPokemon(name) ?: getNullPokemon() }
@@ -42,11 +36,11 @@ class MyViewModel @Inject constructor(
     }
 
     fun loadFavoritesSnapshots() =
-        viewModelScope.launch { _favoritesSnapshots.value = repository.getFavoriteSnapshots() }
+        viewModelScope.launch { repository.getFavoriteSnapshots() }
 
     fun isPokemonInFavorites(pokemon: Pokemon): Boolean {
         loadFavoritesSnapshots()
-        return favoritesSnapshots.value
+        return favouritesSnapshots.value
             .map { it.name }
             .contains(pokemon.name)
     }

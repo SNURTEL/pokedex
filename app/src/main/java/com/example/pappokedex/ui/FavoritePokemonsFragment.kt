@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -41,6 +43,7 @@ fun FavoritePokemonList(
     navigateToPokemon: (String) -> Unit,
     viewModel: MyViewModel = hiltViewModel()
 ) {
-    viewModel.loadFavoritesSnapshots()
-    PokemonList(viewModel.favoritesSnapshots.value, navigateToPokemon)
+    remember { viewModel.loadFavoritesSnapshots() }
+    val snapshots = viewModel.favouritesSnapshots.collectAsState()
+    PokemonList(snapshots.value, navigateToPokemon)
 }

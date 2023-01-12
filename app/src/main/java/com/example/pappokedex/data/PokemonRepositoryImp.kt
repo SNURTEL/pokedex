@@ -1,8 +1,6 @@
 package com.example.pappokedex.data
 
-import android.util.Log
 import com.example.pappokedex.data.database.PokemonDao
-import com.example.pappokedex.data.database.domainToFavoritePokemon
 import com.example.pappokedex.data.database.entities.FavoritePokemon
 import com.example.pappokedex.data.database.mapPokemonEntityToDomain
 import com.example.pappokedex.data.database.mapPokemonSnapshotEntityToDomain
@@ -12,48 +10,88 @@ import com.example.pappokedex.domain.Pokemon
 import com.example.pappokedex.domain.PokemonRepository
 import com.example.pappokedex.domain.PokemonSnapshot
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import retrofit2.Response
 import timber.log.Timber
 import javax.inject.Inject
+
+private const val PAGE_SIZE = 30
 
 class PokemonRepositoryImp @Inject constructor(
     private val pokemonRemoteApi: PokeApi,
     private val pokemonDatabaseDao: PokemonDao
 ) : PokemonRepository {
+    private val snapshotsStateFlow = MutableStateFlow(emptyList<PokemonSnapshot>())
 
-    override suspend fun getAllSnapshots(): List<PokemonSnapshot> =
+    override val snapshotsFlow: StateFlow<List<PokemonSnapshot>>
+        get() = snapshotsStateFlow.asStateFlow()
+
+    private val favouritesStateFlow = MutableStateFlow(emptyList<PokemonSnapshot>())
+
+    override val favouritesFlow: StateFlow<List<PokemonSnapshot>>
+        get() = favouritesStateFlow.asStateFlow()
+
+    override suspend fun getAllSnapshots() {
+        var pageIndex = 0
+        var finalPageReached = false
+        while (!finalPageReached) {
+            val pokemons = getSnapshotsPage(pageIndex, PAGE_SIZE)
+            pageIndex += 1
+            if (pokemons != null) {
+                snapshotsStateFlow.emit(pokemons)
+            } else {
+                finalPageReached = true
+            }
+            Timber.d("$pageIndex, ${pokemons?.map { it.name }}")
+        }
+    }
+
+    override suspend fun getFavoriteSnapshots() =
+        withContext(Dispatchers.IO) {
+            val favourites = pokemonDatabaseDao
+                .getFavoritePokemonSnapshots()
+                .map(::mapPokemonSnapshotEntityToDomain)
+
+            favouritesStateFlow.emit(favourites)
+        }
+
+
+    private suspend fun getSnapshotsPage(pageIndex: Int, pageSize: Int): List<PokemonSnapshot>? =
         withContext(Dispatchers.IO) {
             val response = pokemonRemoteApi.getAllPokeResources()
 
-            val pokemonResources =
-                response.body()?.results?.slice(0..29) ?: return@withContext listOf()
+            val startIndex = pageIndex * pageSize
+            val results = response.body()?.results ?: return@withContext null
+            if (startIndex >= results.size) {
+                return@withContext null
+            }
+
+            val pokemonResources = results.slice(startIndex until startIndex + pageSize)
 
             val pokemonSnapshotsFromDb = pokemonDatabaseDao.getPokemonSnapshots().map {
                 mapPokemonSnapshotEntityToDomain(it)
             }
             // works properly only after disabling the 30 call limit!
-            if (pokemonResources.count() != pokemonSnapshotsFromDb.count()) {
+            if (startIndex + pageSize != pokemonSnapshotsFromDb.count()) {
                 val missingPokemonNames = pokemonResources
                     .map { it.name }
                     .minus(pokemonSnapshotsFromDb.map { it.name }.toSet())
 
-                pokemonDatabaseDao.insertPokemonData(missingPokemonNames.map { pokemonName ->
-                    async { getPokemonFromRemoteApi(pokemonName) }
-                }.awaitAll()
-                    .also {
-                        if (it.contains(null)) {
-                            return@withContext listOf()
-                        }
-                    }.filterNotNull()
+                pokemonDatabaseDao.insertPokemonData(
+                    missingPokemonNames.map { pokemonName ->
+                        async { getPokemonFromRemoteApi(pokemonName) }
+                    }.awaitAll()
+                        .also {
+                            if (it.contains(null)) {
+                                return@withContext null
+                            }
+                        }.filterNotNull()
                 )
             }
 
             pokemonDatabaseDao.getPokemonSnapshots().map(::mapPokemonSnapshotEntityToDomain)
-        }
-
-    override suspend fun getFavoriteSnapshots(): List<PokemonSnapshot> =
-        withContext(Dispatchers.IO) {
-            pokemonDatabaseDao.getFavoritePokemonSnapshots().map(::mapPokemonSnapshotEntityToDomain)
         }
 
     override suspend fun setFavoritePokemon(name: String) =
