@@ -1,15 +1,16 @@
 package com.example.pappokedex.ui
 
+import android.view.inputmethod.InputMethodInfo
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,37 +18,39 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.pappokedex.R
+import timber.log.Timber
 
 
 @Preview
 @Composable
 fun ExpandedSearchViewPreview() {
+    val state = remember { mutableStateOf(TextFieldValue("")) }
+
     Surface(
         color = MaterialTheme.colors.primary
     ) {
         ExpandableSearchView(
-            initialContent = "",
-            onSearchDisplayChanged = {},
+            state = state,
             expandedInitially = true,
-            onSearchDisplayClosed = {}
         )
     }
 }
 
 @Composable
 fun ExpandableSearchView(
-    initialContent: String,
-    onSearchDisplayChanged: (String) -> Unit,
-    onSearchDisplayClosed: () -> Unit,
-    modifier: Modifier = Modifier,
     expandedInitially: Boolean = false,
-    tint: Color = MaterialTheme.colors.onPrimary
+    state: MutableState<TextFieldValue>,
 ) {
     val (expanded, onExpandedChanged) = remember {
         mutableStateOf(expandedInitially)
@@ -57,18 +60,13 @@ fun ExpandableSearchView(
     Crossfade(targetState = expanded) { isSearchFieldVisible ->
         when (isSearchFieldVisible) {
             true -> ExpandedSearchView(
-                searchDisplay = initialContent,
-                onContentChange = onSearchDisplayChanged,
-                onSearchDisplayClosed = onSearchDisplayClosed,
-                onExpandedChanged = onExpandedChanged,
-                modifier = modifier,
-                tint = tint
+                state = state,
+                onExpandedChanged = onExpandedChanged
             )
 
             false -> CollapsedSearchView(
-                onExpandedChanged = onExpandedChanged,
-                modifier = modifier,
-                tint = tint
+                state = state,
+                onExpandedChanged = onExpandedChanged
             )
         }
     }
@@ -76,18 +74,19 @@ fun ExpandableSearchView(
 
 @Composable
 fun CollapsedSearchView(
+    state: MutableState<TextFieldValue>,
     onExpandedChanged: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-    tint: Color = MaterialTheme.colors.onPrimary,
 ) {
 
     Row(
-        modifier = modifier
+        modifier = Modifier
             .padding(vertical = 2.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = { onExpandedChanged(true) }) {
+        IconButton(
+            onClick = { onExpandedChanged(true) }
+        ) {
             Icon(
                 Icons.Outlined.Search,
                 "search icon",
@@ -99,33 +98,25 @@ fun CollapsedSearchView(
 
 @Composable
 fun ExpandedSearchView(
-    searchDisplay: String,
-    onContentChange: (String) -> Unit,
-    onSearchDisplayClosed: () -> Unit,
+    state: MutableState<TextFieldValue>,
     onExpandedChanged: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-    tint: Color = MaterialTheme.colors.primary,
 ) {
     val focusManager = LocalFocusManager.current
 
     val textFieldFocusRequester = remember { FocusRequester() }
-
     SideEffect {
         textFieldFocusRequester.requestFocus()
     }
+    Timber.tag("SEARCH VIEW").d("REDRAW")
 
-    var textFieldValue by remember {
-        mutableStateOf(TextFieldValue(searchDisplay, TextRange(searchDisplay.length)))
-    }
 
     Row(
-        modifier = modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(onClick = {
             onExpandedChanged(false)
-            onSearchDisplayClosed()
         }) {
             Icon(
                 Icons.Outlined.ArrowBack,
@@ -134,17 +125,30 @@ fun ExpandedSearchView(
             )
         }
         TextField(
-            value = textFieldValue,
-            onValueChange = {
-                textFieldValue = it
-                onContentChange(it.text)
+            value = state.value,
+            onValueChange = { value ->
+                if (state.value.text != value.text ) state.value = value
             },
             trailingIcon = {
-                Icon(
-                    Icons.Outlined.Search,
-                    "search icon",
-                    tint = MaterialTheme.colors.onPrimary
-                )
+                Row {
+                    IconButton(onClick = {state.value = TextFieldValue("")}) {
+                        Icon(
+                            Icons.Outlined.Close,
+                            "clear input icon",
+                            tint = MaterialTheme.colors.onPrimary
+                        )
+                    }
+                    IconButton(onClick = {
+                        focusManager.clearFocus()
+                    }) {
+                        Icon(
+                            Icons.Outlined.Search,
+                            "search icon",
+                            tint = MaterialTheme.colors.onPrimary
+                        )
+                    }
+                }
+
             },
             modifier = Modifier
                 .fillMaxWidth()

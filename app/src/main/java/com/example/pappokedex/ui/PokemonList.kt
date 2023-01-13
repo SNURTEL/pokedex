@@ -36,16 +36,9 @@ import java.util.*
 fun PokemonList(
     snapshots: List<PokemonSnapshot>,
     navigateToPokemon: (String) -> Unit,
-    sortSelector: ((PokemonSnapshot) -> Comparable<Any>?)? = null,
-    filterSelector: ((PokemonSnapshot) -> Boolean) = { true }
 ) {
     LazyColumn() {
-        items(
-            snapshots
-                .apply {
-                    filter { filterSelector(it) }
-                    sortSelector?.let { sortedBy { sortSelector(it) } }
-                }) {
+        items(snapshots) {
             PokemonListEntry(it, navigateToPokemon)
         }
     }
