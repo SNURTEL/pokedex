@@ -1,6 +1,7 @@
 package com.example.pappokedex.ui
 
 import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -26,6 +27,7 @@ class MyViewModel @Inject constructor(
 
     private val _pokemon = mutableStateOf<Pokemon?>(null)
     val pokemon: State<Pokemon?> = _pokemon
+
 
     val types = mutableStateOf<List<String>?>(null)
 

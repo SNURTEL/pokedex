@@ -33,6 +33,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -43,12 +44,16 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import coil.compose.AsyncImage
+import coil.compose.AsyncImagePainter
+import coil.compose.SubcomposeAsyncImage
+import coil.compose.SubcomposeAsyncImageContent
 import com.example.pappokedex.domain.Pokemon
 import com.example.pappokedex.ui.theme.PapPokedexTheme
 import com.example.pappokedex.ui.theme.Shapes
 import com.example.pappokedex.ui.theme.White
 import com.example.pappokedex.ui.theme.getColorFrame
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import java.util.*
 
 @AndroidEntryPoint
@@ -86,16 +91,23 @@ fun PokemonInfoScaffold(
 
     viewModel.loadPokemon(pokemonName)
     viewModel.pokemon.value?.let { pokemon ->
+        remember { viewModel.loadFavoritesSnapshots() }
+
+        val tint =
+            pokemon.types.getOrNull(0)?.let { getColorFrame(it) } ?: MaterialTheme.colors.onPrimary
+
         Scaffold(
             floatingActionButton = {
                 FavoriteButton(
-                    isFavorite = viewModel.isPokemonInFavorites(pokemon),
+                    // workaround; this forces Compose to redraw the button every time
+                    // favoriteSnapshots StateFlow changes in repo
+                    isFavorite = viewModel.favouritesSnapshots.collectAsState().value.any { it.name == pokemonName },
                     setFavorite = {
-                        val newFavState = !viewModel.isPokemonInFavorites(pokemon)
-                        viewModel.setFavoritePokemon(pokemon, newFavState)
+                        val newFav = !viewModel.isPokemonInFavorites(pokemon)
+                        viewModel.setFavoritePokemon(pokemon, newFav)
                         Toast.makeText(
                             context,
-                            if (newFavState) "%s added to favorites!".format(
+                            if (newFav) "%s added to favorites!".format(
                                 pokemon.name.uppercase(
                                     Locale.getDefault()
                                 )
@@ -104,13 +116,14 @@ fun PokemonInfoScaffold(
                             Toast.LENGTH_SHORT
                         ).show()
                     },
-                    tint = pokemon.types.getOrNull(0)?.let { getColorFrame(it) }
+                    tint = tint
                 )
             },
             topBar = {
                 DetailsTopBar(
                     title = "Details",
-                    onNavigateUp = onNavigateUp
+                    onNavigateUp = onNavigateUp,
+                    tint = tint
                 )
             },
             content = {
@@ -135,6 +148,7 @@ fun FavoriteButton(
         backgroundColor = tint ?: MaterialTheme.colors.primary,
         contentColor = MaterialTheme.colors.onPrimary,
     ) {
+        Timber.tag("FAB").d("REDRAW")
         Icon(
             if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
             ""
