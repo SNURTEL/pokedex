@@ -43,7 +43,6 @@ import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
@@ -177,14 +176,22 @@ fun DisplayInfo(pokemonInfo: Pokemon) {
                     .align(Alignment.CenterHorizontally)
                     .padding(vertical = 5.dp)
             )
-            AsyncImage(
+            SubcomposeAsyncImage(
                 model = pokemonInfo.iconUrl,
                 contentDescription = null,
+                filterQuality = FilterQuality.None,
                 modifier = Modifier
                     .padding(top = 150.dp, bottom = 150.dp)
                     .scale(10.0F)
                     .align(Alignment.CenterHorizontally)
-            )
+            ) {
+                val state = painter.state
+                if (state is AsyncImagePainter.State.Loading || state is AsyncImagePainter.State.Error) {
+                    CircularProgressIndicator()
+                } else {
+                    SubcomposeAsyncImageContent()
+                }
+            }
             Row() {
                 Text(
                     text = "Types: ",
