@@ -10,6 +10,9 @@ import com.example.pappokedex.domain.PokemonRepository
 import com.example.pappokedex.domain.PokemonSnapshot
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flatMap
+import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,6 +26,8 @@ class MyViewModel @Inject constructor(
 
     private val _pokemon = mutableStateOf<Pokemon?>(null)
     val pokemon: State<Pokemon?> = _pokemon
+
+    val types = mutableStateOf<List<String>?>(null)
 
     fun loadAllSnapshots() =
         viewModelScope.launch { repository.getAllSnapshots() }

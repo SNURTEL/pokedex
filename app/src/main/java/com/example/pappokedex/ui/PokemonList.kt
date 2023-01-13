@@ -61,14 +61,9 @@ fun PokemonListEntry(
 
     Surface(
         shape = MaterialTheme.shapes.medium,
-//        elevation = 1.dp,
-        // surfaceColor color will be changing gradually from primary to surface
-        //color = surfaceColor,
         color = Color.Transparent,
-        // animateContentSize will change the Surface size gradually
         modifier = Modifier
             .animateContentSize()
-//            .padding(1.dp)
             .clickable { navigateToPokemon(pokemon.name) }
             .background(
                 brush = Brush.horizontalGradient(
@@ -147,15 +142,7 @@ fun PokemonListEntry(
                         }
                     }
                 }
-
             }
-            // todo display favorite icon when needed
-//            Spacer(Modifier.weight(1f))
-//            Icon(if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder, "", Modifier
-//                .align(Alignment.CenterVertically)
-//                .padding(16.dp)
-//                .size(30.dp),
-//            tint = if (isFavorite) Color.White else Color.Transparent)
         }
     }
 }

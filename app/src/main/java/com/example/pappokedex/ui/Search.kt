@@ -1,14 +1,11 @@
 package com.example.pappokedex.ui
 
-import android.view.inputmethod.InputMethodInfo
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Search
@@ -17,18 +14,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.pappokedex.R
 import timber.log.Timber
 
 
@@ -40,7 +30,7 @@ fun ExpandedSearchViewPreview() {
     Surface(
         color = MaterialTheme.colors.primary
     ) {
-        ExpandableSearchView(
+        SearchBar(
             state = state,
             expandedInitially = true,
         )
@@ -48,14 +38,13 @@ fun ExpandedSearchViewPreview() {
 }
 
 @Composable
-fun ExpandableSearchView(
+fun SearchBar(
     expandedInitially: Boolean = false,
     state: MutableState<TextFieldValue>,
 ) {
     val (expanded, onExpandedChanged) = remember {
         mutableStateOf(expandedInitially)
     }
-
 
     Crossfade(targetState = expanded) { isSearchFieldVisible ->
         when (isSearchFieldVisible) {
@@ -107,16 +96,14 @@ fun ExpandedSearchView(
     SideEffect {
         textFieldFocusRequester.requestFocus()
     }
-    Timber.tag("SEARCH VIEW").d("REDRAW")
-
 
     Row(
-        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(onClick = {
             onExpandedChanged(false)
+            state.value = TextFieldValue("")
         }) {
             Icon(
                 Icons.Outlined.ArrowBack,
@@ -151,7 +138,6 @@ fun ExpandedSearchView(
 
             },
             modifier = Modifier
-                .fillMaxWidth()
                 .focusRequester(textFieldFocusRequester),
             label = {
                 Text(text = "Search", color = MaterialTheme.colors.onPrimary)

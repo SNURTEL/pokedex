@@ -4,14 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.findFragment
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.fragment.findNavController
 import com.example.pappokedex.domain.PokemonSnapshot
@@ -29,7 +27,10 @@ class BrowsePokemonFragment : Fragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 PapPokedexTheme() {
-                    BrowsePokemonListScaffold(::navigateToDetails)
+                    BrowsePokemonListScaffold(
+                        "Browse",
+                        ::navigateToDetails
+                    )
                 }
             }
         }
@@ -46,24 +47,37 @@ class BrowsePokemonFragment : Fragment() {
 
 @Composable
 fun BrowsePokemonListScaffold(
+    title: String,
     navigateToPokemon: (String) -> Unit,
     viewModel: MyViewModel = hiltViewModel()
 ) {
     val searchBarState = remember { mutableStateOf(TextFieldValue("")) }
-    Timber.tag("SCAFFOLD").d("FULL RECOMPOSITION")
+    val filterState = remember {
+        mutableStateOf(mapOf<String, Boolean>())
+    }
+
+    val snapshotsFlow = viewModel.pokemonSnapshots
+    if (filterState.value.isEmpty()) {
+        val types = snapshotsFlow.collectAsState().value
+            .flatMap { it.types }
+            .distinct()
+        filterState.value = types.map { it to true }.toMap()
+    }
+
     Scaffold(
         topBar = {
-            TopBar(
-                searchBarState = searchBarState
+            ListTopBar(
+                title = title,
+                searchBarState = searchBarState,
+                filterState = filterState
             )
         }
     ) {
         val text = searchBarState.value.text
-        Timber.tag("SELECTOR").d(text)
         BrowsePokemonList(
             navigateToPokemon = navigateToPokemon,
             filterSelector = { p ->
-                p.name.startsWith(text)
+                p.name.startsWith(text) and p.types.any { filterState.value.getOrElse(it) { false } }
             },
             viewModel = viewModel
         )
@@ -78,7 +92,6 @@ fun BrowsePokemonList(
     filterSelector: ((PokemonSnapshot) -> Boolean) = { true },
     viewModel: MyViewModel
 ) {
-    Timber.tag("BROWSE").d("RECOMPOSITION")
     remember { viewModel.loadAllSnapshots() }
     val snapshots = viewModel.pokemonSnapshots.collectAsState()
     PokemonList(
