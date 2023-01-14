@@ -98,8 +98,6 @@ fun PokemonInfoScaffold(
         Scaffold(
             floatingActionButton = {
                 FavoriteButton(
-                    // workaround; this forces Compose to redraw the button every time
-                    // favoriteSnapshots StateFlow changes in repo
                     isFavorite = viewModel.favouritesSnapshots.collectAsState().value.any { it.name == pokemonName },
                     setFavorite = {
                         val newFav = !viewModel.isPokemonInFavorites(pokemon)
