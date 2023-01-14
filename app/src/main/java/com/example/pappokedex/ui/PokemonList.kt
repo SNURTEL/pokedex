@@ -33,7 +33,10 @@ import com.example.pappokedex.ui.theme.getColorFrame
 import java.util.*
 
 @Composable
-fun PokemonList(snapshots: List<PokemonSnapshot>, navigateToPokemon: (String) -> Unit) {
+fun PokemonList(
+    snapshots: List<PokemonSnapshot>,
+    navigateToPokemon: (String) -> Unit,
+) {
     LazyColumn() {
         items(snapshots) {
             PokemonListEntry(it, navigateToPokemon)
@@ -43,7 +46,11 @@ fun PokemonList(snapshots: List<PokemonSnapshot>, navigateToPokemon: (String) ->
 
 
 @Composable
-fun PokemonListEntry(pokemon: PokemonSnapshot, navigateToPokemon: (String) -> Unit, isFavorite: Boolean = false) {
+fun PokemonListEntry(
+    pokemon: PokemonSnapshot,
+    navigateToPokemon: (String) -> Unit,
+    isFavorite: Boolean = false
+) {
 
     // Add padding
     var isExpanded by remember { mutableStateOf(false) }
@@ -54,14 +61,9 @@ fun PokemonListEntry(pokemon: PokemonSnapshot, navigateToPokemon: (String) -> Un
 
     Surface(
         shape = MaterialTheme.shapes.medium,
-//        elevation = 1.dp,
-        // surfaceColor color will be changing gradually from primary to surface
-        //color = surfaceColor,
         color = Color.Transparent,
-        // animateContentSize will change the Surface size gradually
         modifier = Modifier
             .animateContentSize()
-//            .padding(1.dp)
             .clickable { navigateToPokemon(pokemon.name) }
             .background(
                 brush = Brush.horizontalGradient(
@@ -140,15 +142,7 @@ fun PokemonListEntry(pokemon: PokemonSnapshot, navigateToPokemon: (String) -> Un
                         }
                     }
                 }
-
             }
-            // todo display favorite icon when needed
-//            Spacer(Modifier.weight(1f))
-//            Icon(if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder, "", Modifier
-//                .align(Alignment.CenterVertically)
-//                .padding(16.dp)
-//                .size(30.dp),
-//            tint = if (isFavorite) Color.White else Color.Transparent)
         }
     }
 }

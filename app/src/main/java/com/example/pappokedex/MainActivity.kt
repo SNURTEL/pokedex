@@ -25,9 +25,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val navController = navHostFragment.navController
 
-        val appBarConfiguration = AppBarConfiguration(setOf(R.id.browse_pokemons_fragment, R.id.favorite_pokemons_fragment))
-
-        setupActionBarWithNavController(this, navController, appBarConfiguration)
+//        val appBarConfiguration = AppBarConfiguration(setOf(R.id.browse_pokemons_fragment, R.id.favorite_pokemons_fragment))
+//
+//        setupActionBarWithNavController(this, navController, appBarConfiguration)
 
         val bottomNavigationView =
             findViewById<BottomNavigationView>(R.id.bottom_navigation_view)

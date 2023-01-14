@@ -6,8 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearOutSlowInEasing
@@ -22,13 +20,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.icons.outlined.Home
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,6 +32,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -45,8 +41,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import coil.compose.AsyncImage
+import coil.compose.AsyncImagePainter
+import coil.compose.SubcomposeAsyncImage
+import coil.compose.SubcomposeAsyncImageContent
 import com.example.pappokedex.domain.Pokemon
 import com.example.pappokedex.ui.theme.PapPokedexTheme
 import com.example.pappokedex.ui.theme.Shapes
@@ -68,7 +67,12 @@ class DisplayPokemonInfo : Fragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 PapPokedexTheme {
-                    PokemonInfo(pokemonName = args.pokemonName)
+                    PokemonInfoScaffold(
+                        pokemonName = args.pokemonName,
+                        onNavigateUp = {
+                            findNavController().navigateUp()
+                        }
+                    )
                 }
             }
         }
@@ -77,23 +81,32 @@ class DisplayPokemonInfo : Fragment() {
 
 
 @Composable
-fun PokemonInfo(
+fun PokemonInfoScaffold(
     pokemonName: String,
+    onNavigateUp: () -> Unit,
     viewModel: MyViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
 
     viewModel.loadPokemon(pokemonName)
     viewModel.pokemon.value?.let { pokemon ->
+        remember { viewModel.loadFavoritesSnapshots() }
+
+        val tint =
+            pokemon.types.getOrNull(0)?.let { getColorFrame(it) } ?: MaterialTheme.colors.onPrimary
+
         Scaffold(
             floatingActionButton = {
-                FloatingActionButton(
-                    onClick = {
-                        val newFavState = !viewModel.isPokemonInFavorites(pokemon)
-                        viewModel.setFavoritePokemon(pokemon, newFavState)
+                FavoriteButton(
+                    // workaround; this forces Compose to redraw the button every time
+                    // favoriteSnapshots StateFlow changes in repo
+                    isFavorite = viewModel.favouritesSnapshots.collectAsState().value.any { it.name == pokemonName },
+                    setFavorite = {
+                        val newFav = !viewModel.isPokemonInFavorites(pokemon)
+                        viewModel.setFavoritePokemon(pokemon, newFav)
                         Toast.makeText(
                             context,
-                            if (newFavState == true) "%s added to favorites!".format(
+                            if (newFav) "%s added to favorites!".format(
                                 pokemon.name.uppercase(
                                     Locale.getDefault()
                                 )
@@ -102,21 +115,42 @@ fun PokemonInfo(
                             Toast.LENGTH_SHORT
                         ).show()
                     },
-                    backgroundColor = pokemon.types.getOrNull(0)?.let { getColorFrame(it) }
-                        ?: MaterialTheme.colors.primary,
-                    contentColor = MaterialTheme.colors.onPrimary,
-                ) {
-                    Icon(
-                        if (viewModel.isPokemonInFavorites(pokemon)) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                        ""
-                    )
-                }
+                    tint = tint
+                )
+            },
+            topBar = {
+                DetailsTopBar(
+                    title = "Details",
+                    onNavigateUp = onNavigateUp,
+                    tint = tint
+                )
             },
             content = {
-                Timber.tag("POKEMON INFO").d("Reload ${pokemon.name} info page")
                 DisplayInfo(pokemon)
                 it.calculateTopPadding()
-            } // ??? u wot
+            }
+        )
+    }
+}
+
+@Composable
+fun FavoriteButton(
+    isFavorite: Boolean,
+    setFavorite: (Boolean) -> Unit,
+    tint: Color?
+) {
+    FloatingActionButton(
+        onClick = {
+            val newFavState = !isFavorite
+            setFavorite(newFavState)
+        },
+        backgroundColor = tint ?: MaterialTheme.colors.primary,
+        contentColor = MaterialTheme.colors.onPrimary,
+    ) {
+        Timber.tag("FAB").d("REDRAW")
+        Icon(
+            if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+            ""
         )
     }
 }
@@ -142,14 +176,22 @@ fun DisplayInfo(pokemonInfo: Pokemon) {
                     .align(Alignment.CenterHorizontally)
                     .padding(vertical = 5.dp)
             )
-            AsyncImage(
+            SubcomposeAsyncImage(
                 model = pokemonInfo.iconUrl,
                 contentDescription = null,
+                filterQuality = FilterQuality.None,
                 modifier = Modifier
                     .padding(top = 150.dp, bottom = 150.dp)
                     .scale(10.0F)
                     .align(Alignment.CenterHorizontally)
-            )
+            ) {
+                val state = painter.state
+                if (state is AsyncImagePainter.State.Loading || state is AsyncImagePainter.State.Error) {
+                    CircularProgressIndicator()
+                } else {
+                    SubcomposeAsyncImageContent()
+                }
+            }
             Row() {
                 Text(
                     text = "Types: ",
