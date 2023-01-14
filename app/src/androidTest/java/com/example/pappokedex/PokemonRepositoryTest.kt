@@ -1,6 +1,7 @@
 package com.example.pappokedex
 
 import androidx.room.Room
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.pappokedex.data.PokemonRepositoryImp
@@ -11,6 +12,9 @@ import com.example.pappokedex.data.pokeapi.models.AbilityModel
 import com.example.pappokedex.data.pokeapi.models.PokemonModel
 import com.example.pappokedex.data.pokeapi.models.PokemonResourceListModel
 import com.example.pappokedex.data.pokeapi.models.SpeciesModel
+import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.EarlyEntryPoint
+import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.runBlocking
 
 import org.junit.Test
@@ -22,6 +26,7 @@ import retrofit2.Response
 
 /*
         splash splash those tests are complete trash
+        (and broken)
  */
 
 
@@ -54,7 +59,7 @@ class TestApiWrapper(val innerApi: PokeApi) : PokeApi {
     }
 }
 
-@RunWith(AndroidJUnit4::class)
+@HiltAndroidTest
 class PokemonRepositoryTest {
     @Test
     fun testSinglePokemonCaching() {
@@ -92,7 +97,8 @@ class PokemonRepositoryTest {
             repo.getPokemon("ivysaur")
             repo.getPokemon("venusaur")
 
-            val snapshots = repo.getAllSnapshots()
+            repo.getAllSnapshots()
+            val snapshots = repo.snapshotsFlow.value
             assert(api.getPokemonCallCounter == snapshots.size)   // no repeated calls, 3 saved
             return@runBlocking
         }
@@ -109,9 +115,11 @@ class PokemonRepositoryTest {
             val api = TestApiWrapper(PokeApiHelper().getApi())
             val repo = PokemonRepositoryImp(api, dao)
 
-            val snapshots = repo.getAllSnapshots()
+            repo.getAllSnapshots()
+            val snapshots = repo.snapshotsFlow.value
             val initialCalls = api.getPokemonCallCounter
-            val newSnapshots = repo.getAllSnapshots()
+            repo.getAllSnapshots()
+            val newSnapshots = repo.snapshotsFlow.value
             assert(api.getPokemonCallCounter == initialCalls)   // no more calls
             assert(snapshots.count() == newSnapshots.count())
 
