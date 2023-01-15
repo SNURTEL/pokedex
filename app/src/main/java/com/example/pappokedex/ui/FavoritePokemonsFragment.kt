@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -16,6 +17,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.fragment.findNavController
 import com.example.pappokedex.domain.PokemonSnapshot
 import com.example.pappokedex.ui.theme.PapPokedexTheme
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
@@ -51,6 +53,11 @@ fun FavoritePokemonListScaffold(
     navigateToPokemon: (String) -> Unit,
     viewModel: MyViewModel = hiltViewModel()
 ) {
+    val systemUiController = rememberSystemUiController()
+    systemUiController.setStatusBarColor(
+        color = MaterialTheme.colors.primary
+    )
+
     val searchBarState = remember { mutableStateOf(TextFieldValue("")) }
     remember { viewModel.loadAllSnapshots() }
     val filterState = remember {

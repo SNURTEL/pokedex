@@ -1,9 +1,11 @@
 package com.example.pappokedex.ui
 
+import android.content.res.Resources.Theme
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.ComposeView
@@ -14,6 +16,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.fragment.findNavController
 import com.example.pappokedex.domain.PokemonSnapshot
 import com.example.pappokedex.ui.theme.*
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
@@ -51,6 +54,11 @@ fun BrowsePokemonListScaffold(
     navigateToPokemon: (String) -> Unit,
     viewModel: MyViewModel = hiltViewModel()
 ) {
+    val systemUiController = rememberSystemUiController()
+    systemUiController.setStatusBarColor(
+        color = MaterialTheme.colors.primary
+    )
+
     val searchBarState = remember { mutableStateOf(TextFieldValue("")) }
     val filterState = remember {
         mutableStateOf(mapOf<String, Boolean>())
