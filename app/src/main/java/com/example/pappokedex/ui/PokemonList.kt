@@ -51,14 +51,6 @@ fun PokemonListEntry(
     navigateToPokemon: (String) -> Unit,
     isFavorite: Boolean = false
 ) {
-
-    // Add padding
-    var isExpanded by remember { mutableStateOf(false) }
-    // surfaceColor will be updated gradually from one color to the other
-    val surfaceColor by animateColorAsState(
-        if (isExpanded) MaterialTheme.colors.primary else MaterialTheme.colors.surface,
-    )
-
     Surface(
         shape = MaterialTheme.shapes.medium,
         color = Color.Transparent,
@@ -86,20 +78,15 @@ fun PokemonListEntry(
                 model = pokemon.iconUrl,
                 contentDescription = "Pokemon Icon",
                 modifier = Modifier
-                    // Set image size to 40 dp
                     .size(70.dp)
-                    // Clip image to be shaped as a circle
                     .clip(CircleShape)
                     .border(3.dp, getColorFrame(pokemon.types[0]), CircleShape)
                     .clickable { navigateToPokemon(pokemon.name) }
             )
 
-            // Add a horizontal space between the image and the column
             Spacer(modifier = Modifier.width(5.dp))
 
-
-            // We toggle the isExpanded variable when we click on this Column
-            Column(modifier = Modifier.clickable { isExpanded = !isExpanded }) {
+            Column(modifier = Modifier.padding(all = 8.dp)) {
                 Text(
                     text = pokemon.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
                     fontSize = 20.sp,
@@ -110,7 +97,6 @@ fun PokemonListEntry(
                         .clickable { navigateToPokemon(pokemon.name) }
 
                 )
-                // Add a vertical space between the Name and types
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Row(modifier = Modifier.padding(horizontal = 1.dp)) {
@@ -133,9 +119,6 @@ fun PokemonListEntry(
                                 fontSize = 15.sp,
                                 color = White,
                                 modifier = Modifier.padding(all = 5.dp),
-                                // If the message is expanded, we display all its content
-                                // otherwise we only display the first line
-                                maxLines = if (isExpanded) Int.MAX_VALUE else 1,
                                 style = MaterialTheme.typography.body2,
                                 fontWeight = FontWeight.Bold
                             )

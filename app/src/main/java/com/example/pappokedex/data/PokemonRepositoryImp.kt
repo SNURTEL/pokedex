@@ -44,7 +44,7 @@ class PokemonRepositoryImp @Inject constructor(
             } else {
                 finalPageReached = true
             }
-            Timber.d("$pageIndex, ${pokemons?.map { it.name }}")
+            Timber.d("$pageIndex, page") // ${pokemons?.map { it.name }}
         }
     }
 
@@ -73,7 +73,6 @@ class PokemonRepositoryImp @Inject constructor(
             val pokemonSnapshotsFromDb = pokemonDatabaseDao.getPokemonSnapshots().map {
                 mapPokemonSnapshotEntityToDomain(it)
             }
-            // works properly only after disabling the 30 call limit!
             if (startIndex + pageSize != pokemonSnapshotsFromDb.count()) {
                 val missingPokemonNames = pokemonResources
                     .map { it.name }
@@ -114,7 +113,9 @@ class PokemonRepositoryImp @Inject constructor(
         withContext(Dispatchers.IO) {
             getPokemonFromDB(name) ?: getPokemonFromRemoteApi(name)?.also {
                 pokemonDatabaseDao.insertPokemonData(listOf(it))
+                Timber.tag("REPO").d("Get $name pokemon from API/DB")
             }
+
         }
 
     private suspend fun getPokemonFromDB(name: String): Pokemon? =
@@ -125,6 +126,7 @@ class PokemonRepositoryImp @Inject constructor(
                 mapPokemonEntityToDomain(it, pokeAbilities)
             }
         }
+
 
     private suspend fun getPokemonFromRemoteApi(pokemonName: String): Pokemon? =
         coroutineScope {

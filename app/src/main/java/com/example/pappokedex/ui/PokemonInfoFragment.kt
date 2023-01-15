@@ -47,10 +47,7 @@ import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
 import com.example.pappokedex.domain.Pokemon
-import com.example.pappokedex.ui.theme.PapPokedexTheme
-import com.example.pappokedex.ui.theme.Shapes
-import com.example.pappokedex.ui.theme.White
-import com.example.pappokedex.ui.theme.getColorFrame
+import com.example.pappokedex.ui.theme.*
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import java.util.*
@@ -98,8 +95,6 @@ fun PokemonInfoScaffold(
         Scaffold(
             floatingActionButton = {
                 FavoriteButton(
-                    // workaround; this forces Compose to redraw the button every time
-                    // favoriteSnapshots StateFlow changes in repo
                     isFavorite = viewModel.favouritesSnapshots.collectAsState().value.any { it.name == pokemonName },
                     setFavorite = {
                         val newFav = !viewModel.isPokemonInFavorites(pokemon)
@@ -160,7 +155,8 @@ fun DisplayInfo(pokemonInfo: Pokemon) {
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colors.background
+//        color = MaterialTheme.colors.background
+        color = getColorBackground(pokemonInfo.types[0])
     )
     {
         Column(
@@ -195,7 +191,7 @@ fun DisplayInfo(pokemonInfo: Pokemon) {
             Row() {
                 Text(
                     text = "Types: ",
-                    fontSize = 20.sp,
+                    fontSize = 25.sp,
                     style = MaterialTheme.typography.body2,
                     modifier = Modifier.padding(vertical = 5.dp),
                 )
@@ -221,19 +217,19 @@ fun DisplayInfo(pokemonInfo: Pokemon) {
             }
             Text(
                 text = "Height: %.2fm".format(pokemonInfo.height * 0.1),
-                fontSize = 20.sp,
+                fontSize = 25.sp,
                 style = MaterialTheme.typography.body2,
                 modifier = Modifier.padding(vertical = 6.dp),
             )
             Text(
                 text = "Weight: %.2fkg".format(pokemonInfo.weight * 0.1),
-                fontSize = 20.sp,
+                fontSize = 25.sp,
                 style = MaterialTheme.typography.body2,
                 modifier = Modifier.padding(vertical = 6.dp),
             )
             Text(
                 text = "Abilities:",
-                fontSize = 20.sp,
+                fontSize = 25.sp,
                 style = MaterialTheme.typography.body2,
                 modifier = Modifier.padding(vertical = 5.dp)
             )
@@ -257,6 +253,8 @@ fun ExpandableCard(
     )
 
     Card(
+        backgroundColor = Color.Transparent,
+        elevation = 0.dp,
         modifier = Modifier
             .animateContentSize(
                 animationSpec = tween(
@@ -281,7 +279,7 @@ fun ExpandableCard(
                         .padding(all = 2.dp)
                         .weight(9f),
                     text = title.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
-                    fontSize = 20.sp,
+                    fontSize = 25.sp,
                     style = MaterialTheme.typography.body2,
                     maxLines = 1,
                 )
@@ -302,7 +300,7 @@ fun ExpandableCard(
             if (expandedState) {
                 Text(
                     text = description,
-                    fontSize = 20.sp,
+                    fontSize = 22.sp,
                     style = MaterialTheme.typography.body2,
                     modifier = Modifier.padding(all = 2.dp),
                 )
