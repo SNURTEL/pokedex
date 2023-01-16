@@ -2,6 +2,7 @@ package com.example.pappokedex.mock
 
 import com.example.pappokedex.data.database.PokemonDao
 import com.example.pappokedex.data.database.entities.*
+import com.example.pappokedex.data.database.mapPokemonDomainToEntity
 import com.example.pappokedex.domain.Pokemon
 
 
@@ -20,6 +21,8 @@ fun getMockPokemonEntity(): PokemonEntity =
 
 
 class MockPokemonDao : PokemonDao {
+    val inner_pokemons = mutableListOf<PokemonEntity>()
+
     override suspend fun getPokemon(name: String): PokemonEntity? {
         return getMockPokemonEntity()
     }
@@ -30,10 +33,12 @@ class MockPokemonDao : PokemonDao {
     }
 
     override suspend fun insertPokemonData(pokemonData: List<Pokemon>) {
-//        super.insertPokemonData(pokemonData)
+        val entities = pokemonData.map { mapPokemonDomainToEntity(it) }
+        insertPokemons(entities)
     }
 
     override fun insertPokemons(pokemons: List<PokemonEntity>) {
+        inner_pokemons.addAll(pokemons.minus(inner_pokemons))
 //        TODO("Not yet implemented")
     }
 

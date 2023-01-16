@@ -148,7 +148,6 @@ fun FavoriteButton(
         backgroundColor = tint ?: MaterialTheme.colors.primary,
         contentColor = MaterialTheme.colors.onPrimary,
     ) {
-        Timber.tag("FAB").d("REDRAW")
         Icon(
             if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
             ""

@@ -18,6 +18,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 private const val PAGE_SIZE = 30
+private const val LOG_TAG = "REPO"
 
 class PokemonRepositoryImp @Inject constructor(
     private val pokemonRemoteApi: PokeApi,
@@ -37,6 +38,7 @@ class PokemonRepositoryImp @Inject constructor(
         var pageIndex = 0
         var finalPageReached = false
         while (!finalPageReached) {
+            Timber.tag(LOG_TAG).d("Fetch page $pageIndex")
             val pokemons = getSnapshotsPage(pageIndex, PAGE_SIZE)
             pageIndex += 1
             if (pokemons != null) {
@@ -44,7 +46,6 @@ class PokemonRepositoryImp @Inject constructor(
             } else {
                 finalPageReached = true
             }
-            Timber.d("$pageIndex, page") // ${pokemons?.map { it.name }}
         }
     }
 
@@ -96,7 +97,7 @@ class PokemonRepositoryImp @Inject constructor(
     override suspend fun setFavoritePokemon(name: String) =
         withContext(Dispatchers.IO) {
             pokemonDatabaseDao.insertFavoritePokemon(FavoritePokemon(name))
-            Timber.tag("REPO").d("Insert $name as favorite")
+            Timber.tag(LOG_TAG).d("Insert $name as favorite")
             return@withContext
         }
 
@@ -104,7 +105,7 @@ class PokemonRepositoryImp @Inject constructor(
     override suspend fun removeFavoritePokemon(name: String) =
         withContext(Dispatchers.IO) {
             pokemonDatabaseDao.deleteFavouritePokemons(name)
-            Timber.tag("REPO").d("Remove $name from favorites")
+            Timber.tag(LOG_TAG).d("Remove $name from favorites")
             return@withContext
         }
 
@@ -113,16 +114,19 @@ class PokemonRepositoryImp @Inject constructor(
         withContext(Dispatchers.IO) {
             getPokemonFromDB(name) ?: getPokemonFromRemoteApi(name)?.also {
                 pokemonDatabaseDao.insertPokemonData(listOf(it))
-                Timber.tag("REPO").d("Get $name pokemon from API/DB")
             }
 
         }
 
     private suspend fun getPokemonFromDB(name: String): Pokemon? =
         coroutineScope {
-            val entity = let { pokemonDatabaseDao.getPokemon(name) } ?: return@coroutineScope null
+            val entity = let { pokemonDatabaseDao.getPokemon(name) } ?: run {
+                Timber.tag(LOG_TAG).d("$name not in DB!")
+                return@coroutineScope null
+            }
             entity.let {
                 val pokeAbilities = pokemonDatabaseDao.getPokemonAbilities(name)
+                Timber.tag(LOG_TAG).d("Get $name from DB")
                 mapPokemonEntityToDomain(it, pokeAbilities)
             }
         }
@@ -132,7 +136,10 @@ class PokemonRepositoryImp @Inject constructor(
         coroutineScope {
             val model =
                 getResponseBodyOrNull { pokemonRemoteApi.getPokemon(pokemonName) }
-                    ?: return@coroutineScope null
+                    ?: run {
+                        Timber.tag(LOG_TAG).d("Could not get $pokemonName from API")
+                        return@coroutineScope null
+                    }
 
             val abilityModels =
                 model.abilities
@@ -146,14 +153,18 @@ class PokemonRepositoryImp @Inject constructor(
                     .awaitAll()
                     .also {
                         if (it.contains(null)) {
+                            Timber.tag(LOG_TAG).d("Got $pokemonName from API, but failed to fetch abilities")
                             return@coroutineScope null
                         }
                     }
                     .filterNotNull()
 
             val speciesModel = getResponseBodyOrNull { pokemonRemoteApi.getSpecies(pokemonName) }
-                ?: return@coroutineScope null
+                ?: run{
+                    Timber.tag(LOG_TAG).d("Got $pokemonName from API, but failed to fetch species")
+                    return@coroutineScope null }
 
+            Timber.tag(LOG_TAG).d("Got $pokemonName from API!")
             mapModelsToPokemon(model, speciesModel, abilityModels)
         }
 }
