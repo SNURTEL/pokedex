@@ -12,7 +12,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import org.junit.Test
 import org.junit.Assert.*
 
-// TODO mock the network API
+// TODO refactor with mocked API
 @OptIn(ExperimentalSerializationApi::class)
 class ModelMappersTest {
     private val api = PokeApiHelper().getApi()

@@ -48,6 +48,7 @@ import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
 import com.example.pappokedex.domain.Pokemon
 import com.example.pappokedex.ui.theme.*
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import java.util.*
@@ -91,6 +92,11 @@ fun PokemonInfoScaffold(
 
         val tint =
             pokemon.types.getOrNull(0)?.let { getColorFrame(it) } ?: MaterialTheme.colors.onPrimary
+
+        val systemUiController = rememberSystemUiController()
+        systemUiController.setStatusBarColor(
+            color = tint
+        )
 
         Scaffold(
             floatingActionButton = {
@@ -142,7 +148,6 @@ fun FavoriteButton(
         backgroundColor = tint ?: MaterialTheme.colors.primary,
         contentColor = MaterialTheme.colors.onPrimary,
     ) {
-        Timber.tag("FAB").d("REDRAW")
         Icon(
             if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
             ""

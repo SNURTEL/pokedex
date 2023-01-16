@@ -8,6 +8,8 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.Assert.*
 
+// TODO refactor with mocked API
+
 class ActualApiTest {
     private val loggerTag = "ApiCallsTest"
     private val pokeApi = PokeApiHelper().getApi()
