@@ -14,21 +14,21 @@ import retrofit2.Response
 fun getMockPokemonResponse(): Response<PokemonModel> {
     val model = PokemonModel(
         name = "eevee",
-        height = 69,
-        weight = 420,
+        height = 123,
+        weight = 456,
         abilities = listOf(
             PokemonAbilityModel(
                 is_hidden = true,
                 slot = 1337,
                 ability = NamedApiResourceModel(
                     "UWU",
-                    "https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjh7ozansf8AhVW6CoKHVZpBUsQyCl6BAgkEAM&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DdQw4w9WgXcQ&usg=AOvVaw0aHtehaphMhOCAkCydRLZU"
+                    "https://pokeapi.co/api/v2/type/1/"
                 )
             )
         ),
         types = listOf(),
         sprites = SpriteUrlsModel(null, null, null, null),
-        species = NamedApiResourceModel("sprites", "https://weiti.pl")
+        species = NamedApiResourceModel("sprites", "https://pokeapi.co/api/v2/pokemon-species/132/")
     )
 
     return Response.success(

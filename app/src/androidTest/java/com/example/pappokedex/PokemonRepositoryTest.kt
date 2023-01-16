@@ -24,11 +24,6 @@ import org.junit.Assert.*
 import retrofit2.Response
 
 
-/*
-        splash splash those tests are complete trash
-        (and broken)
- */
-
 
 class TestApiWrapper(val innerApi: PokeApi) : PokeApi {
     var getPokemonCallCounter = 0;
