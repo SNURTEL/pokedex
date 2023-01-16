@@ -6,7 +6,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
 import org.junit.Test
 
-// TODO refactor with mocked API
 
 // will log a warning when https request fails, test itself will be OK
 // mostly for debugging purposes

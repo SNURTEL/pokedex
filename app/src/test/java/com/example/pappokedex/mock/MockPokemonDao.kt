@@ -9,8 +9,8 @@ import com.example.pappokedex.domain.Pokemon
 fun getMockPokemonEntity(): PokemonEntity =
     PokemonEntity(
         name = "bulbasaur",
-        iconUrl = "https://weiti.pl",
-        height = 666,
+        iconUrl = "https://assets.pokemon.com/assets/cms2/img/pokedex/full/001.png",
+        height = 123,
         weight = 777,
         types = listOf("cool type"),
         evolutionChainId = 999,

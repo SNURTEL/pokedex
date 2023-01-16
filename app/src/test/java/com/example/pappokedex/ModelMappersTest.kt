@@ -12,7 +12,6 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import org.junit.Test
 import org.junit.Assert.*
 
-// TODO refactor with mocked API
 @OptIn(ExperimentalSerializationApi::class)
 class ModelMappersTest {
     private val api = PokeApiHelper().getApi()
@@ -54,7 +53,7 @@ class ModelMappersTest {
             speciesModel = speciesModel,
             abilityModels = abilityModels
         )
-        return  // put a debugging breakpoint here and inspect the object lol
+        return  
     }
 
     @Test
