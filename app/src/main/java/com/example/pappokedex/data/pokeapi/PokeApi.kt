@@ -1,13 +1,8 @@
 package com.example.pappokedex.data.pokeapi
 
-import com.example.pappokedex.data.pokeapi.models.AbilityModel
+import com.example.pappokedex.data.pokeapi.models.SingleAbilityModel
 import com.example.pappokedex.data.pokeapi.models.PokemonResourceListModel
-import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.json.Json
-import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Response
-import retrofit2.Retrofit
 import retrofit2.http.GET
 import retrofit2.http.Path
 
@@ -24,6 +19,12 @@ interface PokeApi {
     @GET("pokemon-species/{speciesName}")
     suspend fun getSpecies(@Path("speciesName") name: String): Response<SpeciesModel>
 
+    @GET("pokemon-species/{speciesId}")
+    suspend fun getSpecies(@Path("speciesId") speciesId: Int): Response<SpeciesModel>
+
     @GET("ability/{abilityName}")
-    suspend fun getAbility(@Path("abilityName") name: String): Response<AbilityModel>
+    suspend fun getAbility(@Path("abilityName") name: String): Response<SingleAbilityModel>
+
+    @GET("ability/{abilityId}")
+    suspend fun getAbility(@Path("abilityId") abilityId: Int): Response<SingleAbilityModel>
 }

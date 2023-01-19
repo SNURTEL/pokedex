@@ -52,16 +52,17 @@ interface PokemonDao {
     }
 
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    // MANAGE NAMES!!!!!,
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertPokemons(pokemons: List<PokemonEntity>)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertPokemonSnapshots(pokemonSnapshots: List<PokemonSnapshotEntity>)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertAbilities(abilities: List<AbilityEntity>)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertAbilityRelation(abilityRelation: PokemonToAbilityEntity)
 
     @Query("SELECT * FROM abilities WHERE name = :name LIMIT 1")

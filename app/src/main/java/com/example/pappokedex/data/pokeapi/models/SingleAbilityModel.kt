@@ -3,7 +3,6 @@ package com.example.pappokedex.data.pokeapi.models
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class AbilityModel(
-    val name: String,
+data class SingleAbilityModel(
     val effect_entries: List<VerboseEffectModel>
     )

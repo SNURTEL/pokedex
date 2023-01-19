@@ -4,7 +4,7 @@ import android.util.Log
 import com.example.pappokedex.data.pokeapi.PokeApiHelper
 import com.example.pappokedex.data.pokeapi.mapModelToAbility
 import com.example.pappokedex.data.pokeapi.mapModelsToPokemon
-import com.example.pappokedex.data.pokeapi.models.AbilityModel
+import com.example.pappokedex.data.pokeapi.models.SingleAbilityModel
 import com.example.pappokedex.data.pokeapi.models.PokemonModel
 import com.example.pappokedex.data.pokeapi.models.SpeciesModel
 import kotlinx.coroutines.runBlocking
@@ -22,7 +22,7 @@ class ModelMappersTest {
 
 
         var pokemonModel: PokemonModel
-        val abilityModels = mutableListOf<AbilityModel>()
+        val abilityModels = mutableListOf<SingleAbilityModel>()
         var speciesModel: SpeciesModel
 
         runBlocking {
@@ -58,7 +58,7 @@ class ModelMappersTest {
 
     @Test
     fun testAbilityModelMapper(){
-        var abilityModel: AbilityModel
+        var abilityModel: SingleAbilityModel
         runBlocking {
             val abilityModelResponse = api.getAbility("stench")
             if(!abilityModelResponse.isSuccessful) {
@@ -67,7 +67,6 @@ class ModelMappersTest {
             }
             abilityModel = abilityModelResponse.body()!!
         }
-        val ability = mapModelToAbility(abilityModel)
 
         return
     }
