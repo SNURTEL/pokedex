@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import retrofit2.Response
 import timber.log.Timber
+import java.lang.Integer.min
 import javax.inject.Inject
 
 private const val PAGE_SIZE = 30
@@ -69,7 +70,7 @@ class PokemonRepositoryImp @Inject constructor(
                 return@withContext null
             }
 
-            val pokemonResources = results.slice(startIndex until startIndex + pageSize)
+            val pokemonResources = results.slice(startIndex until min(startIndex + pageSize, results.size))
 
             val pokemonSnapshotsFromDb = pokemonDatabaseDao.getPokemonSnapshots().map {
                 mapPokemonSnapshotEntityToDomain(it)
@@ -85,13 +86,18 @@ class PokemonRepositoryImp @Inject constructor(
                     }.awaitAll()
                         .also {
                             if (it.contains(null)) {
-                                return@withContext null
+                                Timber.tag(LOG_TAG).w("API ERROR AT PAGE $pageIndex: ${it.count({it == null})} NULLS!")
+//                                return@withContext null
                             }
-                        }.filterNotNull()
+                        }.filterNotNull().also {
+                            Timber.tag(LOG_TAG).d("Insert page $pageIndex ($it.size) to DB}")
+                        }
                 )
             }
 
+
             pokemonDatabaseDao.getPokemonSnapshots().map(::mapPokemonSnapshotEntityToDomain)
+
         }
 
     override suspend fun setFavoritePokemon(name: String) =
@@ -143,10 +149,10 @@ class PokemonRepositoryImp @Inject constructor(
 
             val abilityModels =
                 model.abilities
-                    .map { abilityModel ->
+                    .map { resourceAbilityModel ->
                         async {
                             getResponseBodyOrNull {
-                                pokemonRemoteApi.getAbility(abilityModel.ability.name)
+                                pokemonRemoteApi.getAbility(resourceAbilityModel.ability.url.split('/').last({!it.isEmpty()}).toInt())
                             }
                         }
                     }
@@ -159,13 +165,15 @@ class PokemonRepositoryImp @Inject constructor(
                     }
                     .filterNotNull()
 
-            val speciesModel = getResponseBodyOrNull { pokemonRemoteApi.getSpecies(pokemonName) }
+
+
+            val speciesModel = getResponseBodyOrNull { pokemonRemoteApi.getSpecies(model.species.url.split('/').last({!it.isEmpty()}).toInt()) }
                 ?: run{
                     Timber.tag(LOG_TAG).d("Got $pokemonName from API, but failed to fetch species")
                     return@coroutineScope null }
 
             Timber.tag(LOG_TAG).d("Got $pokemonName from API!")
-            mapModelsToPokemon(model, speciesModel, abilityModels)
+            mapModelsToPokemon(model, speciesModel, model.abilities.map { it.ability.name }, abilityModels)
         }
 }
 

@@ -11,7 +11,7 @@ data class PokemonEntity(
     val height: Int,
     val weight: Int,
     val types: List<String>,
-    val evolutionChainId: Int,
+    val evolutionChainId: Int?,
     val isBaby: Boolean,
     val isLegendary: Boolean,
     val isMythical: Boolean

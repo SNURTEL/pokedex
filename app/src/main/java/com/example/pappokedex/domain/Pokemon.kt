@@ -7,7 +7,7 @@ data class Pokemon(
     val weight: Int,
     val abilities: List<Ability>,
     val types: List<String>,
-    val evolutionChainId: Int,
+    val evolutionChainId: Int?,
     val isBaby: Boolean,
     val isLegendary: Boolean,
     val isMythical: Boolean

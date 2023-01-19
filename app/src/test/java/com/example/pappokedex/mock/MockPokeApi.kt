@@ -1,12 +1,7 @@
 package com.example.pappokedex.mock
 
-import com.example.pappokedex.data.PokemonRepositoryImp
-import com.example.pappokedex.data.database.PokemonDao
-import com.example.pappokedex.data.database.entities.PokemonEntity
 import com.example.pappokedex.data.pokeapi.PokeApi
 import com.example.pappokedex.data.pokeapi.models.*
-import dagger.hilt.components.SingletonComponent
-import dagger.hilt.testing.TestInstallIn
 import okhttp3.ResponseBody.Companion.toResponseBody
 import retrofit2.Response
 
@@ -17,7 +12,7 @@ fun getMockPokemonResponse(): Response<PokemonModel> {
         height = 123,
         weight = 456,
         abilities = listOf(
-            PokemonAbilityModel(
+            ResourceAbilityModel(
                 is_hidden = true,
                 slot = 1337,
                 ability = NamedApiResourceModel(
@@ -52,7 +47,7 @@ class MockPokeApi : PokeApi {
 //        TODO("Not yet implemented")
     }
 
-    override suspend fun getAbility(name: String): Response<AbilityModel> {
+    override suspend fun getAbility(name: String): Response<SingleAbilityModel> {
         return Response.error(500, "Not implemented!".toResponseBody())
 //        TODO("Not yet implemented")
     }

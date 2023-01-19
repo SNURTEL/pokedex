@@ -1,26 +1,20 @@
 package com.example.pappokedex
 
 import androidx.room.Room
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.pappokedex.data.PokemonRepositoryImp
 import com.example.pappokedex.data.database.PokemonDatabase
 import com.example.pappokedex.data.pokeapi.PokeApi
 import com.example.pappokedex.data.pokeapi.PokeApiHelper
-import com.example.pappokedex.data.pokeapi.models.AbilityModel
+import com.example.pappokedex.data.pokeapi.models.SingleAbilityModel
 import com.example.pappokedex.data.pokeapi.models.PokemonModel
 import com.example.pappokedex.data.pokeapi.models.PokemonResourceListModel
 import com.example.pappokedex.data.pokeapi.models.SpeciesModel
-import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.EarlyEntryPoint
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.runBlocking
 
 import org.junit.Test
-import org.junit.runner.RunWith
 
-import org.junit.Assert.*
 import retrofit2.Response
 
 
@@ -37,7 +31,7 @@ class TestApiWrapper(val innerApi: PokeApi) : PokeApi {
         return@runBlocking innerApi.getPokemon(name)
     }
 
-    override suspend fun getAbility(name: String): Response<AbilityModel> = runBlocking {
+    override suspend fun getAbility(name: String): Response<SingleAbilityModel> = runBlocking {
         getAbilityCallCounter++
         return@runBlocking innerApi.getAbility(name)
     }

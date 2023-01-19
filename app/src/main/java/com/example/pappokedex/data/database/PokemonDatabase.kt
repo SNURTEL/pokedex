@@ -11,7 +11,7 @@ import com.example.pappokedex.data.database.entities.*
         AbilityEntity::class, PokemonToAbilityEntity::class,
         FavoritePokemon::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(PokemonConverter::class)
