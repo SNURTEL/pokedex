@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/browse_pokemons_fragment">
+
+    <fragment
+        android:id="@+id/browse_pokemons_fragment"
+        android:name="com.example.pappokedex.ui.BrowsePokemonFragment"
+        android:label="Browse"
+        >
+        <action
+            android:id="@+id/action_browse_pokemons_fragment_to_displayPokemonInfo"
+            app:destination="@id/displayPokemonInfo" />
+        <action
+            android:id="@+id/action_browse_pokemons_fragment_to_favorite_pokemons_fragment"
+            app:destination="@id/favorite_pokemons_fragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/favorite_pokemons_fragment"
+        android:name="com.example.pappokedex.ui.FavoritePokemonsFragment"
+        android:label="Favorites" >
+        <action
+            android:id="@+id/action_favorite_to_displayPokemonInfo"
+            app:destination="@id/displayPokemonInfo" />
+        <action
+            android:id="@+id/action_favorite_pokemons_fragment_to_browse_pokemons_fragment"
+            app:destination="@id/browse_pokemons_fragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/displayPokemonInfo"
+        android:name="com.example.pappokedex.ui.DisplayPokemonInfo"
+        android:label="Details" >
+        <argument
+            android:name="pokemonName"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_displayPokemonInfo_to_browse_pokemons_fragment"
+            app:destination="@id/browse_pokemons_fragment" />
+        <action
+            android:id="@+id/action_displayPokemonInfo_to_favorite_pokemons_fragment"
+            app:destination="@id/favorite_pokemons_fragment" />
+        <action
+            android:id="@+id/action_displayPokemonInfo_self"
+            app:destination="@id/displayPokemonInfo" />
+    </fragment>
+</navigation>
