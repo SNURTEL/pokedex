@@ -1,42 +1,32 @@
-# Aplikacja na androida: Pokedex
+# Pokedex
+A Pokedex app for Android, made with awesome [PokeApi](https://pokeapi.co).
 
-# Tematyka
-* Przedstawianie informacji o Pokemonach pobieranych z PokeApi
+The goal of the project was to get familiar with Android frameworks and try to follow Google's [clean architecture guidelines](https://developer.android.com/topic/architecture). The result is an offline-first app, which lets you browse different Pokemon with search and filter features, preview selected Pokemon details and save them to your collection. 
 
-# Wymagania
-* [Czysta Architektura](https://developer.android.com/topic/architecture?gclid=Cj0KCQiAsdKbBhDHARIsANJ6-jdNi51WZKVm6YwBBnQIHYv1kqkaBEsu0h6uJWhtUH23XbrN5SQON54aAqVyEALw_wcB&gclsrc=aw.ds) -> średni priorytet
-* [Offline first aplikacja](https://developer.android.com/topic/architecture/data-layer/offline-first) -> średni priorytet
-* Wyświetlanie listy pobieżnych informacji o pokemonach -> wysoki priorytet
-* Możliwość wyświetlenia dokładnych informacji o pokemonie -> średni priorytet
-* Implementacja scrollowalnej listy za pomocą pagingu -> mały priorytet
+Written in Kotlin using:
+- Jetpack Compose & Jetpack Navigation Component for UI
+- Room & Retrofit for fetching and storing data
+- Hilt for DI
+- Gradle for automated build
+- Timber for logging
+- JUnit for unit testing
 
-# Planowane technologie
-* Android Jetpack   -> Recycler view w przypadku 
-* XML / Compose UI -> UI
-* JUnit -> Testowanie
-* Navigation Component  -> Nawigacja między ekranami, Safe args plugin w celu zapewniania type safety przekazywanych argumentów)
-* Retrofit  -> Fetchowanie danych z PokeApi (w połączeniu z Kotlin Coroutines, żeby zapewnić prostą asynchroniczność) 
-* Room -> lokalna baza danych do cache-owania fetchowanych danych
-* Kotlin Coroutines -> Asynchroniczność
-* Kotlin
-* Hilt -> DI w celu uproszczenia implementacji Czystej Architektury
-* Kotlinx Serialization
+![img.png](images/img.png)
 
-# Architektura potoku zapytań implementująca Unidiractional Data Flow
-* Wysłanie zapytania do PokeApi
-* Odebranie wyniku zapytania
-* Zapis wyniku do lokalnej bazy danych
-* Otrzymanie nowych danych z bazy danych
-* Wyświetlenie danych w aplikacji
+![img_1.png](images/img_1.png)
 
-# Wstępne ekrany:
-* Scrollowalna lista streszczonych informacji pokemonów
-* Możliwość przejścia do ekranu ze szczegółami danego pokemona
-
-# Encje:
-* PokemonSnapshot: id, iconUrl, name
-* PokemonDetails: id, iconUrl, name, abilities, types, ...
-
-# Testowanie
-* Wykorzystywanie fałszywego repozytorium zapytań o pokemony w celu testowania poprawności działania ViewModel-u
-* Wykorzystywanie fałszywych źródeł danych i lokalnej bazy danych w celu testowania poprawności działania repozytorium
+### Build and install
+Recommended to build with Android Studio. Alternatively, build can be performed from command line:
+```shell
+chmod +x gradlew
+./gradlew assembleDebug
+```
+Install on an emulator:
+```shell
+emulator -avd avd_name
+adb install path/to/your_app.apk
+```
+or on a physical device:
+```shell
+adb -d install path/to/your_app.apk
+```
